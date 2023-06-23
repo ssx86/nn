@@ -1,74 +1,8 @@
-function relu(x) {
-  return Math.max(x, 0);
-}
-
-function loss(res) {
-  let sum = 0;
-  res.forEach((r) => {
-    const diff = r.value - r.item[2];
-    sum += diff * diff;
-  });
-  return sum / res.length;
-}
-
-function loss_grad(X, res) {
-  let sum = 0;
-  res.forEach((r) => {
-    const diff = Math.abs(r.value - r.item[2]);
-    sum == diff * diff;
-  });
-  return sum / res.length;
-}
-
-class Edge {
-  left;
-  right;
-  w;
-  constructor(left, right, w) {
-    this.left = left;
-    this.right = right;
-    this.w = w;
-
-    left.postEdges.push(this);
-    right.prevEdges.push(this);
-  }
-  static connect(left, right, w) {
-    return new Edge(left, right, w);
-  }
-}
-
-class Node {
-  value;
-  prevEdges = [];
-  postEdges = [];
-  propagate() {}
-  backPropagate() {}
-}
-class Feature extends Node {
-  fn;
-  constructor(fn) {
-    super();
-    this.fn = fn;
-  }
-  input(val) {
-    this.value = this.fn(val);
-  }
-}
-class Nurual extends Node {
-  b;
-
-  constructor(b) {
-    super();
-    this.b = b;
-  }
-  propagate() {
-    this.value =
-      this.prevEdges.reduce((res, edge) => {
-        const result = res + relu(edge.left.value * edge.w);
-        return result;
-      }, 0) + this.b;
-  }
-}
+import Network from "./network.js";
+import Feature from "./feature.js";
+import Neuron from "./neuron.js";
+import Edge from "./edge.js";
+import { loss } from "./utils.js";
 
 function main() {
   const features = [
@@ -78,9 +12,9 @@ function main() {
     new Feature((data) => data[1] * data[1]),
     new Feature((data) => data[0] * data[1]),
   ];
-  const layer1 = [new Nurual(1), new Nurual(1), new Nurual(1), new Nurual(1)];
-  const layer2 = [new Nurual(1), new Nurual(1), new Nurual(1), new Nurual(1)];
-  const output = new Nurual(1);
+  const layer1 = [new Neuron(1), new Neuron(1), new Neuron(1), new Neuron(1)];
+  const layer2 = [new Neuron(1), new Neuron(1), new Neuron(1), new Neuron(1)];
+  const output = new Neuron(1);
 
   const edges = [];
   features.forEach((left) => {
