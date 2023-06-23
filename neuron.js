@@ -1,4 +1,4 @@
-import Node from "./node.js";
+import Node from "./Node.js";
 import { relu } from "./utils.js";
 
 class Neuron extends Node {
@@ -16,6 +16,13 @@ class Neuron extends Node {
         const result = res + this.activeFn(edge.left.value * edge.w);
         return result;
       }, 0) + this.b;
+  }
+  backward() {
+    const z = this.value > 0 ? this.value : 0;
+    if (z == 0) {
+      return;
+    }
+    super.backward();
   }
 }
 
