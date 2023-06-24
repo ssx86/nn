@@ -1,22 +1,14 @@
-function loss(res) {
-  let sum = 0;
-  res.forEach((r) => {
-    const diff = r.value - r.item[2];
-    sum += diff * diff;
-  });
-  return sum / res.length;
+function MSE(t, Y) {
+  const diff = Y - t;
+  return (diff * diff) / 2;
 }
 
-function loss_grad(X, res) {
-  let sum = 0;
-  res.forEach((r) => {
-    const diff = Math.abs(r.value - r.item[2]);
-    sum == diff * diff;
-  });
-  return sum / res.length;
+function MSE_grad(t, Y) {
+  const diff = Y - t;
+  return diff;
 }
 
 function relu(x) {
   return Math.max(x, 0);
 }
-export { relu, loss, loss_grad };
+export { relu, MSE, MSE_grad };

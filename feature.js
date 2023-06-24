@@ -12,8 +12,8 @@ class Feature extends Node {
     this.value = this.fn(val);
   }
   backward() {
-    console.log("feature, do nothing");
-    super.backward();
+    // console.log("feature, do nothing");
+    // super.backward();
   }
 }
 

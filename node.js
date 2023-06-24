@@ -10,13 +10,7 @@ class Node {
   prevEdges = [];
   postEdges = [];
   propagate() {}
-  backward() {
-    console.log("backward, ", this.constructor.name, this.__id);
-
-    this.prevEdges.forEach((edge) => {
-      edge.left.backward();
-    });
-  }
+  backward() {}
 }
 
 export default Node;
