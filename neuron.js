@@ -1,23 +1,22 @@
 import Node from "./Node.js";
-import { sigmoid, dSigmoid, relu, dRelu, config } from "./utils.js";
+import config from "./config.js";
+import Activation from "./Activation.js";
 
 class Neuron extends Node {
   isOutput = false;
 
   b;
 
-  activeFn;
-  dFn;
+  activation;
 
   h;
   sumW = 0;
   dOutput;
 
-  constructor(b, activeFn = relu, dFn = dRelu) {
+  constructor(b, activation = Activation.relu) {
     super();
     this.b = b;
-    this.activeFn = activeFn;
-    this.dFn = dFn;
+    this.activation = activation;
   }
   propagate() {
     this.h =
@@ -25,10 +24,13 @@ class Neuron extends Node {
         const result = res + edge.left.value * edge.w;
         return result;
       }, 0) + this.b;
-    this.value = this.isOutput ? this.h : this.activeFn(this.h);
+    this.value = this.isOutput ? this.h : this.activation.activate(this.h);
   }
-  backward() {
-    if (!this.isOutput) {
+  backward(batchAcc) {
+    if (this.isOutput) {
+      // const rate = Math.abs(this.dOutput) / Math.abs(config.clip_threshold);
+      // if (rate > 1) this.dOutput /= rate;
+    } else {
       this.dOutput = 0;
       this.postEdges.forEach((edge) => {
         if (edge.right.sumW == 0) {
@@ -42,17 +44,32 @@ class Neuron extends Node {
       }
     }
 
-    this.dh = this.isOutput ? this.dOutput : this.dFn(this.h) * this.dOutput;
+    this.dh = this.isOutput
+      ? this.dOutput
+      : this.activation.der(this.h) * this.dOutput;
 
-    this.b -= config.learning_rate * this.dh;
+    const db = -1 * config.learning_rate * this.dh;
+    this.b += db;
 
     this.sumW = 0;
     this.prevEdges.forEach((edge) => {
-      let dw = config.learning_rate * this.dh * edge.left.value;
-      const rate = Math.abs(dw) / Math.abs(edge.w);
-      // if (rate > 1) dw /= rate;
-      edge.w -= dw;
+      const dw = -1 * config.learning_rate * this.dh * edge.left.value;
+      edge.w += dw;
       this.sumW += edge.w;
+    });
+  }
+
+  fetchParam(batchAcc) {
+    batchAcc.setBias(this, this.b);
+    this.prevEdges.forEach((edge) => {
+      batchAcc.setWeight(edge, edge.w);
+    });
+  }
+
+  updateParam(batchAcc) {
+    this.b = batchAcc.getBias(this);
+    this.prevEdges.forEach((edge) => {
+      edge.w = batchAcc.getWeight(edge);
     });
   }
 }

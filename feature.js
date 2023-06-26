@@ -11,10 +11,6 @@ class Feature extends Node {
   propagate(val) {
     this.value = this.fn(val);
   }
-  backward() {
-    // console.log("feature, do nothing");
-    // super.backward();
-  }
 }
 
 export default Feature;

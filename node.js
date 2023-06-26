@@ -11,7 +11,6 @@ class Node {
   prevEdges = [];
   postEdges = [];
   propagate() {}
-  backward() {}
 }
 
 export default Node;

@@ -1,41 +1,57 @@
 import Network from "./Network.js";
-import { MSE, config } from "./utils.js";
+import { MSE } from "./utils.js";
+import config from "./config.js";
+import BatchAcc from "./BatchAcc.js";
+import data from "./data.js";
 
-// import data from "./data.js";
 function main() {
-  const dataSize = config.data_size;
-  const data = [];
-  for (let i = 0; i < dataSize; i++) {
-    const a = Math.random() * 1000,
-      b = Math.random() * 1000;
-    data.push([a, b, a]);
-  }
-
-  const trainingDataSize = dataSize - 20;
-  const trainingData = data.slice(0, trainingDataSize);
-  const testData = data.slice(trainingDataSize);
-
-  const network = new Network([2, 1], [(data) => data[0], (data) => data[1]]);
+  const { trainingData, testData } = data;
+  const network = new Network(config.shape, [
+    (data) => data[0],
+    (data) => data[1],
+  ]);
 
   console.log("============");
   network.print();
   console.log("============");
 
-  for (let i = 0; i < config.epoch_size; i++) {
-    trainingData.sort((a, b) => (Math.random() > 0.5 ? 1 : -1));
+  const batchAcc = new BatchAcc();
 
-    const ys = [],
-      ts = [];
-    for (let j = 0; j < config.batch_size; j++) {
-      network.propagate(trainingData[j]);
-      ts.push(trainingData[j][2]);
-      ys.push(network.getOutput()[0]);
+  for (let i = 0; i < config.epoch_count; i++) {
+    trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
+    let batchIndexer = 0;
+    for (let j = 0; j < trainingData.length; j++) {
+      config.updateLearningRate(j);
+
+      const dataPoint = trainingData[j];
+      const tValue = dataPoint[2];
+
+      network.propagate(dataPoint);
+      const y = network.getOutput();
+
+      const loss = network.batchCalcLoss(tValue, y);
+
+      if (batchAcc.better(loss)) {
+        batchAcc.clear();
+        batchAcc.setLoss(loss);
+
+        network.fetchParams(batchAcc);
+      }
+      network.backward();
+
+      if (
+        j >= batchIndexer * config.batch_size ||
+        j == trainingData.length - 1
+      ) {
+        batchIndexer++;
+
+        // console.log("    batch: ", j, batchAcc.bestLoss);
+        network.updateParams(batchAcc);
+        batchAcc.clear();
+      }
     }
-    network.batchCalcLoss(ts, ys);
-    network.backward();
-    config.updateLearningRate(i);
 
-    if (i % (dataSize / 100) == 0) console.log("round", i, network.loss);
+    console.log("epoch: ", i, network.loss);
     // network.print();
   }
 
@@ -44,8 +60,8 @@ function main() {
     console.log({
       data: item,
       expect: item[2],
-      predict: network.getOutput()[0],
-      loss: MSE(item[2], network.getOutput()[0]),
+      predict: network.getOutput(),
+      loss: MSE(item[2], network.getOutput()),
     });
   });
 }
