@@ -6,10 +6,7 @@ import data from "./data.js";
 
 function main() {
   const { trainingData, testData } = data;
-  const network = new Network(config.shape, [
-    (data) => data[0],
-    (data) => data[1],
-  ]);
+  const network = new Network(config.shape, config.features);
 
   console.log("============");
   network.print();
@@ -17,7 +14,7 @@ function main() {
 
   const batchAcc = new BatchAcc();
 
-  for (let i = 0; i < config.epoch_count; i++) {
+  for (let i = 0; i < config.epoch; i++) {
     trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
     let batchIndexer = 0;
     for (let j = 0; j < trainingData.length; j++) {

@@ -53,7 +53,7 @@ class Network {
         i == 0 ? n.propagate(input) : n.propagate();
       });
     }
-    return this.layers[this.layers.length - 1].value;
+    return this.layers[this.layers.length - 1].output;
   }
   backward(batchAcc = new BatchAcc()) {
     for (let i = this.layers.length - 1; i > 0; i--) {
@@ -87,7 +87,7 @@ class Network {
     return this.layers[this.layers.length - 1][0];
   }
   getOutput() {
-    return this.getOutputNode().value;
+    return this.getOutputNode().output;
   }
 
   print() {
@@ -101,9 +101,7 @@ class Network {
         arr.push({
           name: node.name,
           b: node.b,
-          h: node.h,
-          dh: node.dh,
-          v: node.value,
+          output: node.output,
           dOutput: node.dOutput,
           sumW: node.sumW,
           ...ws,

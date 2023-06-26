@@ -7,7 +7,7 @@ class Node {
     this.__id = Node.uuid;
   }
   name;
-  value;
+  output;
   prevEdges = [];
   postEdges = [];
   propagate() {}

@@ -9,7 +9,7 @@ class Feature extends Node {
     this.fn = fn;
   }
   propagate(val) {
-    this.value = this.fn(val);
+    this.output = this.fn(val);
   }
 }
 

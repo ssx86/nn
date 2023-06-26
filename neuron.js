@@ -1,6 +1,5 @@
 import Node from "./Node.js";
 import config from "./config.js";
-import Activation from "./Activation.js";
 
 class Neuron extends Node {
   isOutput = false;
@@ -13,7 +12,7 @@ class Neuron extends Node {
   sumW = 0;
   dOutput;
 
-  constructor(b, activation = Activation.relu) {
+  constructor(b, activation = config.default_activation) {
     super();
     this.b = b;
     this.activation = activation;
@@ -21,10 +20,11 @@ class Neuron extends Node {
   propagate() {
     this.h =
       this.prevEdges.reduce((res, edge) => {
-        const result = res + edge.left.value * edge.w;
+        const result = res + edge.left.output * edge.w;
         return result;
       }, 0) + this.b;
-    this.value = this.isOutput ? this.h : this.activation.activate(this.h);
+    this.output = this.isOutput ? this.h : this.activation.activate(this.h);
+    // this.output = this.activation.activate(this.h);
   }
   backward(batchAcc) {
     if (this.isOutput) {
@@ -47,13 +47,14 @@ class Neuron extends Node {
     this.dh = this.isOutput
       ? this.dOutput
       : this.activation.der(this.h) * this.dOutput;
+    // this.dh = this.activation.der(this.h) * this.dOutput;
 
     const db = -1 * config.learning_rate * this.dh;
     this.b += db;
 
     this.sumW = 0;
     this.prevEdges.forEach((edge) => {
-      const dw = -1 * config.learning_rate * this.dh * edge.left.value;
+      const dw = -1 * config.learning_rate * this.dh * edge.left.output;
       edge.w += dw;
       this.sumW += edge.w;
     });

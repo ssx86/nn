@@ -5,7 +5,7 @@ const data = [];
 for (let i = 0; i < dataSize; i++) {
   const a = Math.random() * 100,
     b = Math.random() * 100;
-  data.push([a, b, a]);
+  data.push([a, b, a * 2 + 9 * b + 3 * a * b + Math.random() * 10]);
 }
 
 const trainingDataSize = config.trainingSize(config.data_size);
