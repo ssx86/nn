@@ -2,11 +2,16 @@ import Node from "./Node.js";
 import { sigmoid, dSigmoid, relu, dRelu, learning_rate } from "./utils.js";
 
 class Neuron extends Node {
-  d;
-  dh;
+  isOutput = false;
+
   b;
-  h;
+
   activeFn;
+  dFn;
+
+  h;
+  sumW = 0;
+  dOutput;
 
   constructor(b, activeFn = relu, dFn = dRelu) {
     super();
@@ -23,32 +28,26 @@ class Neuron extends Node {
     this.value = this.activeFn(this.h);
   }
   backward() {
-    if (this.postEdges.length !== 0) {
-      // not output node
-      let d = 0;
-      const current = this;
-
-      this.postEdges
-        .map((edge) => edge.right)
-        .forEach((node) => {
-          let sumW = 0,
-            w;
-          node.prevEdges.forEach((edge) => {
-            if (edge.left == current) w = edge.w;
-            sumW += edge.w;
-          });
-          if (sumW !== 0) d += (node.dh * w) / sumW;
-          else d += node.dh / node.prevEdges.length;
-        });
-
-      this.d = d;
+    if (!this.isOutput) {
+      this.dOutput = 0;
+      this.postEdges.forEach((edge) => {
+        if (edge.right.sumW == 0) {
+          this.dOutput += edge.right.dh / edge.right.prevEdges.length;
+        } else {
+          this.dOutput += (edge.w * edge.right.dh) / edge.right.sumW;
+        }
+      });
     }
-    const dz = this.dFn(this.d);
-    this.b -= learning_rate * this.d * dz;
+
+    this.dh = this.isOutput ? this.dOutput : this.dFn(this.h) * this.dOutput;
+
+    this.b -= learning_rate * this.dh;
+
+    this.sumW = 0;
     this.prevEdges.forEach((edge) => {
-      edge.w -= learning_rate * this.d * dz * edge.left.value;
+      edge.w -= learning_rate * this.dh * edge.left.value;
+      this.sumW += edge.w;
     });
-    this.dh = this.d * dz;
   }
 }
 

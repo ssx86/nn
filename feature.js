@@ -8,7 +8,7 @@ class Feature extends Node {
 
     this.fn = fn;
   }
-  input(val) {
+  propagate(val) {
     this.value = this.fn(val);
   }
   backward() {

@@ -38,5 +38,5 @@ function dSigmoid(x) {
   const s = sigmoid(x);
   return s * (1 - s);
 }
-const learning_rate = 0.0001;
+const learning_rate = 0.003;
 export { relu, dRelu, sigmoid, dSigmoid, MSE, MSE_grad, learning_rate };
