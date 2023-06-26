@@ -40,5 +40,11 @@ function dSigmoid(x) {
 }
 const config = {
   learning_rate: 0.001,
+  data_size: 10000,
+  epoch_size: 5000,
+  batch_size: 100,
+  updateLearningRate: function (round) {
+    // if (round % 1000 == 0) this.learning_rate *= 0.5;
+  },
 };
 export { relu, dRelu, sigmoid, dSigmoid, MSE, MSE_grad, config };

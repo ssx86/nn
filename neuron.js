@@ -48,7 +48,10 @@ class Neuron extends Node {
 
     this.sumW = 0;
     this.prevEdges.forEach((edge) => {
-      edge.w -= config.learning_rate * this.dh * edge.left.value;
+      let dw = config.learning_rate * this.dh * edge.left.value;
+      const rate = Math.abs(dw) / Math.abs(edge.w);
+      // if (rate > 1) dw /= rate;
+      edge.w -= dw;
       this.sumW += edge.w;
     });
   }

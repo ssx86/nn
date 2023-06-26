@@ -4,6 +4,7 @@ import Edge from "./Edge.js";
 import { MSE, MSE_grad } from "./utils.js";
 class Network {
   loss;
+  dJ;
   layers = [];
   constructor(shape, featureFns) {
     // Input Layer
@@ -61,11 +62,9 @@ class Network {
   }
 
   batchCalcLoss(t, y) {
-    const loss = MSE(t, y);
-    console.log("batch loss", loss);
-    const dJ = MSE_grad(t, y);
-    // console.log({ dJ });
-    this.layers[this.layers.length - 1][0].dOutput = dJ;
+    this.loss = MSE(t, y);
+    this.dJ = MSE_grad(t, y);
+    this.layers[this.layers.length - 1][0].dOutput = this.dJ;
   }
 
   getOutput() {
