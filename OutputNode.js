@@ -1,5 +1,5 @@
 import Node from "./Node.js";
-import { relu } from "./utils.js";
+import { relu, learning_rate } from "./utils.js";
 
 class OutputNode extends Node {
   d;
@@ -18,9 +18,9 @@ class OutputNode extends Node {
       }, 0) + this.b;
   }
   backward() {
-    this.b -= 0.003 * this.d;
+    this.b -= learning_rate * this.d;
     this.prevEdges.forEach((edge) => {
-      edge.w -= 0.003 * this.d * edge.left.value;
+      edge.w -= learning_rate * this.d * edge.left.value;
     });
     this.dh = this.d;
   }
