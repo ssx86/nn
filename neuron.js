@@ -23,8 +23,8 @@ class Neuron extends Node {
         const result = res + edge.left.output * edge.w;
         return result;
       }, 0) + this.b;
-    this.output = this.isOutput ? this.h : this.activation.activate(this.h);
-    // this.output = this.activation.activate(this.h);
+    // this.output = this.isOutput ? this.h : this.activation.activate(this.h);
+    this.output = this.activation.activate(this.h);
   }
   backward(batchAcc) {
     if (this.isOutput) {
@@ -44,10 +44,10 @@ class Neuron extends Node {
       }
     }
 
-    this.dh = this.isOutput
-      ? this.dOutput
-      : this.activation.der(this.h) * this.dOutput;
-    // this.dh = this.activation.der(this.h) * this.dOutput;
+    // this.dh = this.isOutput
+    //   ? this.dOutput
+    //   : this.activation.der(this.h) * this.dOutput;
+    this.dh = this.activation.der(this.h) * this.dOutput;
 
     const db = -1 * config.learning_rate * this.dh;
     this.b += db;

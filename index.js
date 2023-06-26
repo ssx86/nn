@@ -49,8 +49,8 @@ function main() {
     }
 
     console.log("epoch: ", i, network.loss);
-    // network.print();
   }
+  network.print();
 
   testData.forEach((item) => {
     network.propagate(item);

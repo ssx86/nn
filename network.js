@@ -40,7 +40,7 @@ class Network {
       const rightNodes = this.layers[i + 1];
       for (const left of leftNodes) {
         for (const right of rightNodes) {
-          Edge.connect(left, right, Math.random() / 2 - 0.5);
+          Edge.connect(left, right, Math.random() / 100);
         }
       }
     }
