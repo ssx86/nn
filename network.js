@@ -15,8 +15,8 @@ class Network {
       })
     );
 
-    const layerCount = shape.length;
-    for (let i = 0; i < layerCount; i++) {
+    const hiddenLayerCount = shape.length;
+    for (let i = 0; i < hiddenLayerCount; i++) {
       // install a new layer
       const nodeCount = shape[i];
       const layer = [];
@@ -25,13 +25,14 @@ class Network {
         // Output Layer
         const node = new Neuron(Math.random() - 0.5);
         node.name = `Neuron ${i + 1}-${j + 1}`;
-        if (i == layerCount - 1) node.isOutput = true;
+        if (i == hiddenLayerCount - 1) node.isOutput = true;
         layer.push(node);
       }
       this.layers.push(layer);
     }
 
     // full connect
+    const layerCount = hiddenLayerCount + 1;
     for (let i = 0; i < layerCount - 1; i++) {
       const leftNodes = this.layers[i];
       const rightNodes = this.layers[i + 1];
@@ -99,6 +100,9 @@ class Network {
         arr.push({
           name: node.name,
           b: node.b,
+          h: node.h,
+          dh: node.dh,
+          v: node.value,
           dOutput: node.dOutput,
           sumW: node.sumW,
           ...ws,

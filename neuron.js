@@ -1,5 +1,5 @@
 import Node from "./Node.js";
-import { sigmoid, dSigmoid, relu, dRelu, learning_rate } from "./utils.js";
+import { sigmoid, dSigmoid, relu, dRelu, config } from "./utils.js";
 
 class Neuron extends Node {
   isOutput = false;
@@ -25,7 +25,7 @@ class Neuron extends Node {
         const result = res + edge.left.value * edge.w;
         return result;
       }, 0) + this.b;
-    this.value = this.activeFn(this.h);
+    this.value = this.isOutput ? this.h : this.activeFn(this.h);
   }
   backward() {
     if (!this.isOutput) {
@@ -37,15 +37,18 @@ class Neuron extends Node {
           this.dOutput += (edge.w * edge.right.dh) / edge.right.sumW;
         }
       });
+      if (this.dOutput == 0) {
+        debugger;
+      }
     }
 
     this.dh = this.isOutput ? this.dOutput : this.dFn(this.h) * this.dOutput;
 
-    this.b -= learning_rate * this.dh;
+    this.b -= config.learning_rate * this.dh;
 
     this.sumW = 0;
     this.prevEdges.forEach((edge) => {
-      edge.w -= learning_rate * this.dh * edge.left.value;
+      edge.w -= config.learning_rate * this.dh * edge.left.value;
       this.sumW += edge.w;
     });
   }
