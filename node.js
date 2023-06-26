@@ -6,6 +6,7 @@ class Node {
     Node.uuid += 1;
     this.__id = Node.uuid;
   }
+  name;
   value;
   prevEdges = [];
   postEdges = [];

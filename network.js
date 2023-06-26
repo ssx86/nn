@@ -6,6 +6,15 @@ class Network {
   loss;
   layers = [];
   constructor(shape, featureFns) {
+    // Input Layer
+    this.layers.push(
+      featureFns.map((fn, index) => {
+        const node = new Feature(fn);
+        node.name = `Feature ${index}`;
+        return node;
+      })
+    );
+
     const layerCount = shape.length;
     for (let i = 0; i < layerCount; i++) {
       // install a new layer
@@ -13,15 +22,11 @@ class Network {
       const layer = [];
 
       for (let j = 0; j < nodeCount; j++) {
-        if (i == 0) {
-          // Input Layer
-          layer.push(new Feature(featureFns[i]));
-        } else {
-          // Output Layer
-          const node = new Neuron(Math.random() - 0.5);
-          if (i == layerCount - 1) node.isOutput = true;
-          layer.push(node);
-        }
+        // Output Layer
+        const node = new Neuron(Math.random() - 0.5);
+        node.name = `Neuron ${i + 1}-${j + 1}`;
+        if (i == layerCount - 1) node.isOutput = true;
+        layer.push(node);
       }
       this.layers.push(layer);
     }
@@ -92,7 +97,7 @@ class Network {
           ws[`w${index + 1}`] = edge.w;
         });
         arr.push({
-          name: node.constructor.name + node.__id,
+          name: node.name,
           b: node.b,
           dOutput: node.dOutput,
           sumW: node.sumW,
