@@ -5,7 +5,6 @@ import BatchAcc from "./BatchAcc.js";
 import { MSE, MSE_grad } from "./utils.js";
 class Network {
   loss;
-  dJ;
   layers = [];
   constructor(shape, featureFns) {
     // Input Layer
@@ -55,10 +54,11 @@ class Network {
     }
     return this.layers[this.layers.length - 1].output;
   }
-  backward(batchAcc = new BatchAcc()) {
+  backward(grad) {
+    this.getOutputNode().dOutput = grad;
     for (let i = this.layers.length - 1; i > 0; i--) {
       const nodes = this.layers[i];
-      nodes.forEach((n) => n.backward(batchAcc));
+      nodes.forEach((n) => n.backward());
     }
   }
 
@@ -76,11 +76,27 @@ class Network {
     }
   }
 
-  batchCalcLoss(t, y) {
-    this.loss = MSE(t, y);
-    this.dJ = MSE_grad(t, y);
-    this.getOutputNode().dOutput = this.dJ;
-    return this.loss;
+  calcLoss(t) {
+    this.loss = MSE(t, this.getOutput());
+    const grad = MSE_grad(t, this.getOutput());
+    return { loss: this.loss, grad: grad };
+  }
+
+  batchTest(data, tData, judgeFn) {
+    let count = data.length,
+      tCount = 0;
+    data.forEach((item, i) => {
+      this.propagate(item);
+      const { loss } = this.calcLoss(tData[i]);
+      // console.log({
+      //   result: judgeFn(loss, item),
+      //   expect: tData[i],
+      //   predict: this.getOutput(),
+      //   loss,
+      // });
+      if (judgeFn(loss, item)) tCount++;
+    });
+    return tCount / count;
   }
 
   getOutputNode() {

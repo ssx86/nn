@@ -1,8 +1,10 @@
 import Network from "./Network.js";
-import { MSE } from "./utils.js";
 import config from "./config.js";
 import BatchAcc from "./BatchAcc.js";
 import data from "./data.js";
+
+import ansi from "ansi";
+const cursor = ansi(process.stdout);
 
 function main() {
   const { trainingData, testData } = data;
@@ -26,7 +28,7 @@ function main() {
       network.propagate(dataPoint);
       const y = network.getOutput();
 
-      const loss = network.batchCalcLoss(tValue, y);
+      const { loss, grad } = network.calcLoss(tValue, y);
 
       if (batchAcc.better(loss)) {
         batchAcc.clear();
@@ -34,7 +36,7 @@ function main() {
 
         network.fetchParams(batchAcc);
       }
-      network.backward();
+      network.backward(grad);
 
       if (
         j >= batchIndexer * config.batch_size ||
@@ -48,19 +50,18 @@ function main() {
       }
     }
 
-    console.log("epoch: ", i, network.loss);
+    const tPercent = network.batchTest(
+      testData,
+      testData.map((x) => x[2]),
+      (loss, data) => loss < (data[0] + data[1]) / 10
+    );
+    cursor.savePosition();
+    cursor.eraseLine();
+    cursor.write("epoch:" + i);
+    cursor.write(", test loss: " + (100 - tPercent * 100).toFixed(2) + "%");
+    cursor.restorePosition();
   }
   network.print();
-
-  testData.forEach((item) => {
-    network.propagate(item);
-    console.log({
-      data: item,
-      expect: item[2],
-      predict: network.getOutput(),
-      loss: MSE(item[2], network.getOutput()),
-    });
-  });
 }
 
 main();
