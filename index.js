@@ -10,10 +10,6 @@ function main() {
   const { trainingData, testData } = data;
   const network = new Network(config.shape, config.features);
 
-  console.log("============");
-  network.print();
-  console.log("============");
-
   const batchAcc = new BatchAcc();
 
   for (let i = 0; i < config.epoch; i++) {
@@ -23,12 +19,12 @@ function main() {
       config.updateLearningRate(j);
 
       const dataPoint = trainingData[j];
-      const tValue = dataPoint[2];
+      const tValue = config.fn_true_value(dataPoint);
 
       network.propagate(dataPoint);
       const y = network.getOutput();
 
-      const { loss, grad } = network.calcLoss(tValue, y);
+      const { loss, grad, l2 } = network.calcLoss(tValue, y);
 
       if (batchAcc.better(loss)) {
         batchAcc.clear();
@@ -37,6 +33,8 @@ function main() {
         network.fetchParams(batchAcc);
       }
       network.backward(grad);
+      // network.print();
+      // debugger;
 
       if (
         j >= batchIndexer * config.batch_size ||
@@ -50,16 +48,18 @@ function main() {
       }
     }
 
-    const tPercent = network.batchTest(
+    const { loss, result } = network.batchTest(
       testData,
-      testData.map((x) => x[2]),
-      (loss, data) => loss < (data[0] + data[1]) / 10
+      testData.map((x) => config.fn_true_value(x)),
+      (loss, data) => loss < Math.abs(config.fn_true_value(data))
     );
-    cursor.savePosition();
-    cursor.eraseLine();
+    cursor.goto(0, 0);
+    console.table(result.slice(0, 3));
+    cursor.bold();
+    cursor.red();
     cursor.write("epoch:" + i);
-    cursor.write(", test loss: " + (100 - tPercent * 100).toFixed(2) + "%");
-    cursor.restorePosition();
+    cursor.reset();
+    cursor.write(", test loss: " + (loss * 100).toFixed(2) + "%");
   }
   network.print();
 }

@@ -6,6 +6,7 @@ import { MSE, MSE_grad } from "./utils.js";
 class Network {
   loss;
   layers = [];
+  edges = [];
   constructor(shape, featureFns) {
     // Input Layer
     this.layers.push(
@@ -39,7 +40,7 @@ class Network {
       const rightNodes = this.layers[i + 1];
       for (const left of leftNodes) {
         for (const right of rightNodes) {
-          Edge.connect(left, right, Math.random() / 100);
+          this.edges.push(Edge.connect(left, right, Math.random() / 100));
         }
       }
     }
@@ -77,26 +78,31 @@ class Network {
   }
 
   calcLoss(t) {
-    this.loss = MSE(t, this.getOutput());
+    const l2 = Math.pow(
+      this.edges.map((x) => x.w).reduce((sum, x) => sum + (1 / 2) * x * x, 0),
+      0.5
+    );
+    this.loss = MSE(t, this.getOutput()) + l2;
     const grad = MSE_grad(t, this.getOutput());
-    return { loss: this.loss, grad: grad };
+    return { loss: this.loss, grad: grad, l2 };
   }
 
   batchTest(data, tData, judgeFn) {
     let count = data.length,
       tCount = 0;
+    const result = [];
     data.forEach((item, i) => {
       this.propagate(item);
       const { loss } = this.calcLoss(tData[i]);
-      // console.log({
-      //   result: judgeFn(loss, item),
-      //   expect: tData[i],
-      //   predict: this.getOutput(),
-      //   loss,
-      // });
+      result.push({
+        result: judgeFn(loss, item),
+        expect: tData[i],
+        predict: this.getOutput(),
+        loss,
+      });
       if (judgeFn(loss, item)) tCount++;
     });
-    return tCount / count;
+    return { loss: 1 - tCount / count, result };
   }
 
   getOutputNode() {

@@ -8,6 +8,15 @@ class Activation {
     },
   };
 
+  static leakyRelu = {
+    activate: (x) => {
+      return x >= 0 ? x : x / 1000;
+    },
+    der: (x) => {
+      return x >= 0 ? 1 : 1 / 1000;
+    },
+  };
+
   static sigmoid = {
     activate: (x) => {
       return 1 / (1 + Math.exp(-x));

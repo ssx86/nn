@@ -11,7 +11,6 @@ class Neuron extends Node {
   h;
   sumW = 0;
   dOutput;
-  isDead = false;
 
   constructor(b, activation = config.default_activation) {
     super();
@@ -26,14 +25,8 @@ class Neuron extends Node {
       }, 0) + this.b;
     // this.output = this.isOutput ? this.h : this.activation.activate(this.h);
     this.output = this.activation.activate(this.h);
-    if (this.output == 0) {
-      this.isDead = true;
-    }
   }
   backward() {
-    if (this.isDead) {
-      return;
-    }
     if (this.isOutput) {
       // const rate = Math.abs(this.dOutput) / Math.abs(config.clip_threshold);
       // if (rate > 1) this.dOutput /= rate;
@@ -54,13 +47,14 @@ class Neuron extends Node {
     this.b += db;
 
     this.sumW = 0;
-    this.prevEdges
-      .filter((edge) => !edge.left.isDead)
-      .forEach((edge) => {
-        const dw = -1 * config.learning_rate * this.dh * edge.left.output;
-        edge.w += dw;
-        this.sumW += edge.w;
-      });
+    this.prevEdges.forEach((edge) => {
+      const dw =
+        -1 *
+        config.learning_rate *
+        (this.dh * edge.left.output + edge.w * config.lambda);
+      edge.w += dw;
+      this.sumW += edge.w;
+    });
   }
 
   fetchParam(batchAcc) {
