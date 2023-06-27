@@ -54,7 +54,7 @@ function main() {
       (loss, data) => loss < Math.abs(config.fn_true_value(data))
     );
     cursor.goto(0, 0);
-    console.table(result.slice(0, 3));
+    console.table(result.slice(0, 5));
     cursor.bold();
     cursor.red();
     cursor.write("epoch:" + i);

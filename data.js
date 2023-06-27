@@ -10,8 +10,8 @@ for (let i = 0; i < dataSize; i++) {
     a,
     b,
     c,
-    // a + b + 3 * c + 0.4 * a * b + 0.3 * b * c + 0.5 * a * c + 0.001 * a * b * c,
-    a + b + 3 * c + 0.4,
+    a + b + 3 * c + 0.4 * a * b + 0.3 * b * c + 0.5 * a * c + 0.001 * a * b * c,
+    // a + b + 3 * c + 0.4,
   ]);
 }
 // for (let i = 0; i < dataSize; i++) {
