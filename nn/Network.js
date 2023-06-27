@@ -1,7 +1,8 @@
 import Feature from "./Feature.js";
 import Neuron from "./Neuron.js";
 import Edge from "./Edge.js";
-import { MSE, MSE_grad } from "./utils.js";
+import config from "./config.js"
+import { MSE, MSE_grad, CE, CE_grad } from "./utils.js";
 class Network {
   loss;
   layers = [];
@@ -24,9 +25,12 @@ class Network {
 
       for (let j = 0; j < nodeCount; j++) {
         // Output Layer
-        const node = new Neuron(Math.random() / 10 - 0.05);
+        const node = new Neuron(Math.random() / 10 - 0.05, config.default_activation);
         node.name = `Neuron ${i + 1}-${j + 1}`;
-        if (i == hiddenLayerCount - 1) node.isOutput = true;
+        if (i == hiddenLayerCount - 1) {
+          node.activation = config.default_output_activation
+          node.isOutput = true;
+        }
         layer.push(node);
       }
       this.layers.push(layer);
@@ -52,10 +56,12 @@ class Network {
         i == 0 ? n.propagate(input) : n.propagate();
       });
     }
-    return this.layers[this.layers.length - 1].output;
   }
   backward(grad) {
-    this.getOutputNode().dOutput = grad;
+    // this.getOutputNode().dOutput = grad;
+    this.getOutputNodes().forEach((node, index) => {
+      node.dOutput = grad[index]
+    })
     for (let i = this.layers.length - 1; i > 0; i--) {
       const nodes = this.layers[i];
       nodes.forEach((n) => n.backward());
@@ -86,18 +92,30 @@ class Network {
     return { loss: this.loss, grad: grad, l2 };
   }
 
+  calcLossCE(t) {
+    // const l2 = Math.pow(
+    //   this.edges.map((x) => x.w).reduce((sum, x) => sum + (1 / 2) * x * x, 0),
+    //   0.5
+    // );
+    this.loss = CE(t, this.getOutputs());
+    const grad = CE_grad(t, this.getOutputs());
+    return { loss: this.loss, grad: grad };
+  }
+
   batchTest(data, tData, judgeFn) {
     let count = data.length,
       tCount = 0;
     const res = [];
     data.forEach((item, i) => {
       this.propagate(item);
-      const { loss } = this.calcLoss(tData[i]);
+      // const { loss } = this.calcLoss(tData[i]);
+      const { loss } = this.calcLossCE(tData[i]);
       const result = judgeFn(loss, item)
       res.push({
+        item,
         result: result,
         expect: tData[i],
-        predict: this.getOutput(),
+        predict: this.getOutputs(),
         loss,
       });
       if (result) tCount++;
@@ -110,6 +128,13 @@ class Network {
   }
   getOutput() {
     return this.getOutputNode().output;
+  }
+
+  getOutputNodes() {
+    return this.layers[this.layers.length - 1]
+  }
+  getOutputs() {
+    return this.getOutputNodes().map(x => x.output)
   }
 
   print() {

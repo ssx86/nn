@@ -24,4 +24,24 @@ function MSE_grad(t, Y) {
   }
 }
 
-export { MSE, MSE_grad };
+function CE(yTrue, yPred) {
+  // crossEntropyLoss
+  const epsilon = 1e-15;
+  let loss = 0;
+  for (let i = 0; i < yPred.length; i++) {
+    const t = i + 1 == yTrue ? 1 : 0
+    loss += t * Math.log(yPred[i] + epsilon);
+  }
+  return -loss;
+}
+
+function CE_grad(yTrue, yPred) {
+  const gradient = [];
+  for (let i = 0; i < yPred.length; i++) {
+    const t = i + 1 == yTrue ? 1 : 0
+    gradient.push(yPred[i] - t);
+  }
+  return gradient;
+}
+
+export { MSE, MSE_grad, CE, CE_grad };

@@ -24,9 +24,12 @@ function main() {
       const tValue = config.fn_true_value(dataPoint);
 
       network.propagate(dataPoint);
-      const y = network.getOutput();
+      // const y = network.getOutput();
+      // const { loss, grad, l2 } = network.calcLoss(tValue, y);
 
-      const { loss, grad, l2 } = network.calcLoss(tValue, y);
+
+      const y = network.getOutputs();
+      const { loss, grad, l2 } = network.calcLossCE(tValue, y);
 
       if (batchAcc.better(loss)) {
         batchAcc.clear();
@@ -52,7 +55,7 @@ function main() {
     const { loss, result } = network.batchTest(
       testData,
       testData.map((x) => config.fn_true_value(x)),
-      (loss, data) => loss < Math.abs(config.fn_true_value(data))
+      (loss, data) => loss < 0.1
     );
     cursor.goto(0, 0);
     console.table(result.slice(0, 5));
