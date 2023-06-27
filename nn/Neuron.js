@@ -28,8 +28,6 @@ class Neuron extends Node {
   }
   backward() {
     if (this.isOutput) {
-      // const rate = Math.abs(this.dOutput) / Math.abs(config.clip_threshold);
-      // if (rate > 1) this.dOutput /= rate;
     } else {
       this.dOutput = 0;
       this.postEdges.forEach((edge) => {

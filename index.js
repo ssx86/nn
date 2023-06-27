@@ -1,18 +1,20 @@
-import Network from "./Network.js";
-import config from "./config.js";
-import BatchAcc from "./BatchAcc.js";
-import data from "./data.js";
+import Network from "./nn/Network.js";
+import config from "./nn/config.js";
+import BatchAcc from "./nn/BatchAcc.js";
+import Data from "./nn/Data.js";
 
 import ansi from "ansi";
 const cursor = ansi(process.stdout);
 
 function main() {
-  const { trainingData, testData } = data;
+  const { trainingData, testData } = Data;
   const network = new Network(config.shape, config.features);
+
 
   const batchAcc = new BatchAcc();
 
   for (let i = 0; i < config.epoch; i++) {
+
     trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
     let batchIndexer = 0;
     for (let j = 0; j < trainingData.length; j++) {
@@ -42,7 +44,6 @@ function main() {
       ) {
         batchIndexer++;
 
-        // console.log("    batch: ", j, batchAcc.bestLoss);
         network.updateParams(batchAcc);
         batchAcc.clear();
       }

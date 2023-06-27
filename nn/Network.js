@@ -1,7 +1,6 @@
 import Feature from "./Feature.js";
 import Neuron from "./Neuron.js";
 import Edge from "./Edge.js";
-import BatchAcc from "./BatchAcc.js";
 import { MSE, MSE_grad } from "./utils.js";
 class Network {
   loss;
@@ -90,19 +89,20 @@ class Network {
   batchTest(data, tData, judgeFn) {
     let count = data.length,
       tCount = 0;
-    const result = [];
+    const res = [];
     data.forEach((item, i) => {
       this.propagate(item);
       const { loss } = this.calcLoss(tData[i]);
-      result.push({
-        result: judgeFn(loss, item),
+      const result = judgeFn(loss, item)
+      res.push({
+        result: result,
         expect: tData[i],
         predict: this.getOutput(),
         loss,
       });
-      if (judgeFn(loss, item)) tCount++;
+      if (result) tCount++;
     });
-    return { loss: 1 - tCount / count, result };
+    return { loss: 1 - tCount / count, result: res };
   }
 
   getOutputNode() {
