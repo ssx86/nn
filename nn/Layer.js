@@ -27,6 +27,9 @@ class Layer {
     }
   }
   backward() {
+    if (this.isOutput && this.activation == Activation.softmax) {
+      this.neurons.forEach((x) => (x.dOutput = 1));
+    }
     this.neurons.forEach((n) => {
       n.backward();
     });
