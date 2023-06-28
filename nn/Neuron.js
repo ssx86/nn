@@ -1,3 +1,4 @@
+import Activation from "./Activation.js";
 import Node from "./Node.js";
 import config from "./config.js";
 
@@ -23,8 +24,10 @@ class Neuron extends Node {
         const result = res + edge.left.output * edge.w;
         return result;
       }, 0) + this.b;
-    // this.output = this.isOutput ? this.h : this.activation.activate(this.h);
-    this.output = this.activation.activate(this.h);
+    if (!(this.isOutput && this.activation == Activation.softmax)) {
+      // softmax层无需激活，等待输出层统一激活
+      this.output = this.activation.activate(this.h);
+    }
   }
   backward() {
     if (this.isOutput) {

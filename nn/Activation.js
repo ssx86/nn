@@ -36,7 +36,7 @@ const Activation = {
       return exps.map((exp) => exp / sumExp); // 返回归一化概率分布向量
     },
     der: (x) => {
-      const s = softmax(x); // 计算Softmax激活函数
+      const s = Activation.softmax.activate(x); // 计算Softmax激活函数
       const n = s.length;
       const jacobian = new Array(n * n).fill(0); // 创建Jacobian矩阵
       for (let i = 0; i < n; i++) {

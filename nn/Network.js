@@ -5,6 +5,8 @@ import config from "./config.js";
 import BatchAcc from "./BatchAcc.js";
 
 import ansi from "ansi";
+import Activation from "./Activation.js";
+import Layer from "./Layer.js";
 const cursor = ansi(process.stdout);
 
 class Network {
@@ -14,22 +16,25 @@ class Network {
   edges = [];
   trainingData = [];
   testData = [];
+  dJ;
   constructor(shape, featureFns, lossFn) {
     this.lossFn = lossFn;
     // Input Layer
-    this.layers.push(
+    const inputLayer = new Layer(
       featureFns.map((fn, index) => {
         const node = new Feature(fn);
         node.name = `Feature ${index}`;
         return node;
       })
     );
+    inputLayer.isFeature = true;
+    this.layers.push(inputLayer);
 
     const hiddenLayerCount = shape.length;
     for (let i = 0; i < hiddenLayerCount; i++) {
       // install a new layer
       const nodeCount = shape[i];
-      const layer = [];
+      const nodes = [];
 
       for (let j = 0; j < nodeCount; j++) {
         // Output Layer
@@ -42,7 +47,12 @@ class Network {
           node.activation = config.default_output_activation;
           node.isOutput = true;
         }
-        layer.push(node);
+        nodes.push(node);
+      }
+      const layer = new Layer(nodes);
+      if (i == hiddenLayerCount - 1) {
+        layer.activation = config.default_output_activation;
+        layer.isOutput = true;
       }
       this.layers.push(layer);
     }
@@ -50,10 +60,10 @@ class Network {
     // full connect
     const layerCount = hiddenLayerCount + 1;
     for (let i = 0; i < layerCount - 1; i++) {
-      const leftNodes = this.layers[i];
-      const rightNodes = this.layers[i + 1];
-      for (const left of leftNodes) {
-        for (const right of rightNodes) {
+      const leftLayer = this.layers[i];
+      const rightLayer = this.layers[i + 1];
+      for (const left of leftLayer.nodes()) {
+        for (const right of rightLayer.nodes()) {
           this.edges.push(Edge.connect(left, right, Math.random() / 100));
         }
       }
@@ -67,34 +77,38 @@ class Network {
 
   propagate(input) {
     for (let i = 0; i < this.layers.length; i++) {
-      const nodes = this.layers[i];
-      nodes.forEach((n) => {
-        // Input Layer needs input value
-        i == 0 ? n.propagate(input) : n.propagate();
-      });
+      const layer = this.layers[i];
+      // Input Layer needs input value
+      i == 0 ? layer.propagate(input) : layer.propagate();
     }
   }
-  backward(grad) {
-    this.getOutputNodes().forEach((node, index) => {
-      node.dOutput = grad[index];
-    });
+  backward() {
+    // softmax需要在输出层自己用loss计算
+    if (this.getOutputLayer().activation != Activation.softmax) {
+      this.getOutputLayer()
+        .nodes()
+        .forEach((node, index) => {
+          node.dOutput = this.dJ[index];
+        });
+    }
+
     for (let i = this.layers.length - 1; i > 0; i--) {
-      const nodes = this.layers[i];
-      nodes.forEach((n) => n.backward());
+      const layer = this.layers[i];
+      layer.backward();
     }
   }
 
   fetchParams(batchAcc) {
     for (let i = this.layers.length - 1; i > 0; i--) {
-      const nodes = this.layers[i];
-      nodes.forEach((n) => n.fetchParam(batchAcc));
+      const layer = this.layers[i];
+      layer.nodes().forEach((n) => n.fetchParam(batchAcc));
     }
   }
 
   updateParams(batchAcc) {
     for (let i = this.layers.length - 1; i > 0; i--) {
-      const nodes = this.layers[i];
-      nodes.forEach((n) => n.updateParam(batchAcc));
+      const layer = this.layers[i];
+      layer.nodes().forEach((n) => n.updateParam(batchAcc));
     }
   }
 
@@ -129,11 +143,13 @@ class Network {
     return { accuracy: tCount / count, result: res };
   }
 
-  getOutputNodes() {
+  getOutputLayer() {
     return this.layers[this.layers.length - 1];
   }
   getOutputs() {
-    return this.getOutputNodes().map((x) => x.output);
+    return this.getOutputLayer()
+      .nodes()
+      .map((x) => x.output);
   }
 
   train() {
@@ -152,6 +168,7 @@ class Network {
 
         const y = this.getOutputs();
         const { loss, grad, l2 } = this.calcLoss(tValue, y);
+        this.dJ = grad;
 
         if (batchAcc.better(loss)) {
           batchAcc.clear();
@@ -159,7 +176,7 @@ class Network {
 
           this.fetchParams(batchAcc);
         }
-        this.backward(grad);
+        this.backward();
 
         if (
           j >= batchIndexer * config.batch_size ||
