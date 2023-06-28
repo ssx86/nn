@@ -7,11 +7,11 @@ const config = {
 
   loss_function: LossFunction.CE,
 
-  default_activation: Activation.leakyRelu,
+  default_activation: Activation.sigmoid,
   default_output_activation: Activation.sigmoid,
   data_size: 10000,
   epoch: 5000,
-  batch_size: 30,
+  batch_size: 50,
   shape: [5, 4, 3],
   features: [
     (data) => data[0],
@@ -34,7 +34,7 @@ const config = {
         max = x;
       }
     });
-    return index + 1 === item[3];
+    return index + 1 == item[3];
   },
   fn_true_value: (data) => data[3],
   learning_rate: 0.000003,

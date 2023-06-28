@@ -103,8 +103,8 @@ class Network {
       this.edges.map((x) => x.w).reduce((sum, x) => sum + (1 / 2) * x * x, 0),
       0.5
     );
-    const loss = this.lossFn.loss(t, this.getOutput()) + l2;
-    const grad = this.lossFn.grad(t, this.getOutput());
+    const loss = this.lossFn.loss(t, this.getOutputs()) + l2;
+    const grad = this.lossFn.grad(t, this.getOutputs());
     return { loss, grad, l2 };
   }
 
@@ -127,13 +127,6 @@ class Network {
       if (result) tCount++;
     });
     return { accuracy: tCount / count, result: res };
-  }
-
-  getOutputNode() {
-    return this.layers[this.layers.length - 1][0];
-  }
-  getOutput() {
-    return this.getOutputNode().output;
   }
 
   getOutputNodes() {
