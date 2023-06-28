@@ -207,7 +207,7 @@ class Network {
   print() {
     const arr = [];
     this.layers.forEach((layer) =>
-      layer.forEach((node) => {
+      layer.nodes().forEach((node) => {
         const ws = {};
         node.postEdges.forEach((edge, index) => {
           ws[`w${index + 1}`] = edge.w;

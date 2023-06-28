@@ -10,10 +10,10 @@ const Activation = {
 
   leakyRelu: {
     activate: (x) => {
-      return x >= 0 ? x : x / 1000;
+      return x >= 0 ? x : x / 100;
     },
     der: (x) => {
-      return x >= 0 ? 1 : 1 / 1000;
+      return x >= 0 ? 1 : 1 / 100;
     },
   },
 

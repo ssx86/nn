@@ -41,8 +41,11 @@ class Neuron extends Node {
         }
       });
     }
-
-    this.dh = this.activation.der(this.h) * this.dOutput;
+    if (!(this.isOutput && this.activation == Activation.softmax)) {
+      this.dh = this.activation.der(this.h) * this.dOutput;
+    } else {
+      this.dh = this.dOutput;
+    }
 
     const db = -1 * config.learning_rate * this.dh;
     this.b += db;

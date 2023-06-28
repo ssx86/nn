@@ -1,5 +1,20 @@
 import Activation from "./Activation.js";
 import LossFunction from "./LossFunction.js";
+
+function function_judge_regression(loss, item, y) {
+  return Math.abs((item[3] - y[0]) / y[0]) < 0.05;
+}
+function function_judge_classification(loss, item, y) {
+  let index = 0,
+    max = y[0];
+  y.forEach((x, i) => {
+    if (x > max) {
+      index = i;
+      max = x;
+    }
+  });
+  return index + 1 == item[3];
+}
 const config = {
   trainingSize: function (size) {
     return Math.floor(size * 0.7);
@@ -7,12 +22,12 @@ const config = {
 
   loss_function: LossFunction.CE,
 
-  default_activation: Activation.sigmoid,
-  default_output_activation: Activation.sigmoid,
+  default_activation: Activation.leakyRelu,
+  default_output_activation: Activation.softmax,
   data_size: 10000,
-  epoch: 5000,
+  epoch: 50,
   batch_size: 50,
-  shape: [5, 4, 3],
+  shape: [5, 4, 1],
   features: [
     (data) => data[0],
     (data) => data[1],
@@ -25,17 +40,7 @@ const config = {
     (data) => (data[1] * data[2]) / 100,
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
-  fn_judge: (loss, item, y) => {
-    let index = 0,
-      max = y[0];
-    y.forEach((x, i) => {
-      if (x > max) {
-        index = i;
-        max = x;
-      }
-    });
-    return index + 1 == item[3];
-  },
+  fn_judge: function_judge_classification,
   fn_true_value: (data) => data[3],
   learning_rate: 0.000003,
   updateLearningRate: function (round) {

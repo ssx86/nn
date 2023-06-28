@@ -15,6 +15,9 @@ class Layer {
   }
 
   propagate(input) {
+    this.neurons.forEach((n) => {
+      this.isFeature ? n.propagate(input) : n.propagate();
+    });
     if (this.activation == Activation.softmax) {
       // loss is stored in the network
       const outputs = Activation.softmax.activate(this.neurons.map((x) => x.h));
@@ -22,9 +25,6 @@ class Layer {
         n.output = outputs[i];
       });
     }
-    this.neurons.forEach((n) => {
-      this.isFeature ? n.propagate(input) : n.propagate();
-    });
   }
   backward() {
     this.neurons.forEach((n) => {
