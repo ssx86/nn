@@ -49,8 +49,7 @@ class Neuron extends Node {
       const dw =
         -1 *
         config.learning_rate *
-        // (this.dh * edge.left.output + edge.w * config.lambda);
-        (this.dh * edge.left.output + edge.w);
+        (this.dh * edge.left.output + edge.w * config.lambda);
       edge.w += dw;
       this.sumW += edge.w;
     });

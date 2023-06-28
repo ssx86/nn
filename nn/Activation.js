@@ -1,23 +1,23 @@
-class Activation {
-  static relu = {
+const Activation = {
+  relu: {
     activate: (x) => {
       return x >= 0 ? x : 0;
     },
     der: (x) => {
       return x >= 0 ? 1 : 0;
     },
-  };
+  },
 
-  static leakyRelu = {
+  leakyRelu: {
     activate: (x) => {
       return x >= 0 ? x : x / 1000;
     },
     der: (x) => {
       return x >= 0 ? 1 : 1 / 1000;
     },
-  };
+  },
 
-  static sigmoid = {
+  sigmoid: {
     activate: (x) => {
       return 1 / (1 + Math.exp(-x));
     },
@@ -25,16 +25,16 @@ class Activation {
       const s = Activation.sigmoid.activate(x);
       return s * (1 - s);
     },
-  };
+  },
 
-  static linear = {
+  linear: {
     activate: (x) => {
       return x;
     },
     der: (x) => {
       return 1;
     },
-  };
-}
+  },
+};
 
 export default Activation;

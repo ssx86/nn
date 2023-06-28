@@ -1,13 +1,21 @@
 import Feature from "./Feature.js";
 import Neuron from "./Neuron.js";
 import Edge from "./Edge.js";
-import config from "./config.js"
-import { MSE, MSE_grad, CE, CE_grad } from "./utils.js";
+import config from "./config.js";
+import BatchAcc from "./BatchAcc.js";
+
+import ansi from "ansi";
+const cursor = ansi(process.stdout);
+
 class Network {
+  lossFn;
   loss;
   layers = [];
   edges = [];
-  constructor(shape, featureFns) {
+  trainingData = [];
+  testData = [];
+  constructor(shape, featureFns, lossFn) {
+    this.lossFn = lossFn;
     // Input Layer
     this.layers.push(
       featureFns.map((fn, index) => {
@@ -25,10 +33,13 @@ class Network {
 
       for (let j = 0; j < nodeCount; j++) {
         // Output Layer
-        const node = new Neuron(Math.random() / 10 - 0.05, config.default_activation);
+        const node = new Neuron(
+          Math.random() / 10 - 0.05,
+          config.default_activation
+        );
         node.name = `Neuron ${i + 1}-${j + 1}`;
         if (i == hiddenLayerCount - 1) {
-          node.activation = config.default_output_activation
+          node.activation = config.default_output_activation;
           node.isOutput = true;
         }
         layer.push(node);
@@ -48,6 +59,12 @@ class Network {
       }
     }
   }
+
+  setData(trainingData, testData) {
+    this.trainingData = trainingData;
+    this.testData = testData;
+  }
+
   propagate(input) {
     for (let i = 0; i < this.layers.length; i++) {
       const nodes = this.layers[i];
@@ -58,10 +75,9 @@ class Network {
     }
   }
   backward(grad) {
-    // this.getOutputNode().dOutput = grad;
     this.getOutputNodes().forEach((node, index) => {
-      node.dOutput = grad[index]
-    })
+      node.dOutput = grad[index];
+    });
     for (let i = this.layers.length - 1; i > 0; i--) {
       const nodes = this.layers[i];
       nodes.forEach((n) => n.backward());
@@ -87,30 +103,20 @@ class Network {
       this.edges.map((x) => x.w).reduce((sum, x) => sum + (1 / 2) * x * x, 0),
       0.5
     );
-    this.loss = MSE(t, this.getOutput()) + l2;
-    const grad = MSE_grad(t, this.getOutput());
-    return { loss: this.loss, grad: grad, l2 };
+    const loss = this.lossFn.loss(t, this.getOutput()) + l2;
+    const grad = this.lossFn.grad(t, this.getOutput());
+    return { loss, grad, l2 };
   }
 
-  calcLossCE(t) {
-    // const l2 = Math.pow(
-    //   this.edges.map((x) => x.w).reduce((sum, x) => sum + (1 / 2) * x * x, 0),
-    //   0.5
-    // );
-    this.loss = CE(t, this.getOutputs());
-    const grad = CE_grad(t, this.getOutputs());
-    return { loss: this.loss, grad: grad };
-  }
-
-  batchTest(data, tData, judgeFn) {
+  batchTest(tData) {
+    const data = this.testData;
     let count = data.length,
       tCount = 0;
     const res = [];
     data.forEach((item, i) => {
       this.propagate(item);
-      // const { loss } = this.calcLoss(tData[i]);
-      const { loss } = this.calcLossCE(tData[i]);
-      const result = judgeFn(loss, item)
+      const { loss } = this.calcLoss(tData[i]);
+      const result = config.fn_judge(loss, item, this.getOutputs());
       res.push({
         item,
         result: result,
@@ -120,7 +126,7 @@ class Network {
       });
       if (result) tCount++;
     });
-    return { loss: 1 - tCount / count, result: res };
+    return { accuracy: tCount / count, result: res };
   }
 
   getOutputNode() {
@@ -131,10 +137,61 @@ class Network {
   }
 
   getOutputNodes() {
-    return this.layers[this.layers.length - 1]
+    return this.layers[this.layers.length - 1];
   }
   getOutputs() {
-    return this.getOutputNodes().map(x => x.output)
+    return this.getOutputNodes().map((x) => x.output);
+  }
+
+  train() {
+    const batchAcc = new BatchAcc();
+
+    for (let i = 0; i < config.epoch; i++) {
+      this.trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
+      let batchIndexer = 0;
+      for (let j = 0; j < this.trainingData.length; j++) {
+        config.updateLearningRate(j);
+
+        const dataPoint = this.trainingData[j];
+        const tValue = config.fn_true_value(dataPoint);
+
+        this.propagate(dataPoint);
+
+        const y = this.getOutputs();
+        const { loss, grad, l2 } = this.calcLoss(tValue, y);
+
+        if (batchAcc.better(loss)) {
+          batchAcc.clear();
+          batchAcc.setLoss(loss);
+
+          this.fetchParams(batchAcc);
+        }
+        this.backward(grad);
+
+        if (
+          j >= batchIndexer * config.batch_size ||
+          j == this.trainingData.length - 1
+        ) {
+          batchIndexer++;
+
+          this.updateParams(batchAcc);
+          batchAcc.clear();
+        }
+      }
+
+      const { accuracy, result } = this.batchTest(
+        this.testData.map((x) => config.fn_true_value(x))
+      );
+      cursor.hide();
+      cursor.goto(0, 0);
+      console.table(result.slice(0, 5));
+
+      cursor.bold();
+      cursor.red();
+      cursor.write("epoch:" + i);
+      cursor.reset();
+      cursor.write(", test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+    }
   }
 
   print() {
