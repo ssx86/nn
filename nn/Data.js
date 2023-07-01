@@ -22,10 +22,12 @@ const data = [];
 
 for (let i = 0; i < dataSize; i++) {
   function category(a, b, c) {
-    if (a * a + b * b < c + c) {
+    if (a * b > b * c && a * c > b * c) {
       return 1
+    } else if (a * b > b * c) {
+      return 2
     } else {
-      return a > b ? 2 : 3
+      return 3
     }
   }
 

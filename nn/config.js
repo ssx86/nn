@@ -24,12 +24,12 @@ const config = {
 
   loss_function: LossFunction.CE,
 
-  default_activation: Activation.leakyRelu,
+  default_activation: Activation.relu,
   default_output_activation: Activation.softmax,
   data_size: 10000,
   epoch: 50000,
-  batch_size: 50,
-  shape: [5, 8, 6, 3],
+  batch_size: 25,
+  shape: [5, 10, 20, 5, 3],
   features: [
     (data) => data[0],
     (data) => data[1],
@@ -37,9 +37,9 @@ const config = {
     (data) => (data[0] * data[0]) / 100,
     (data) => (data[1] * data[1]) / 100,
     (data) => (data[2] * data[2]) / 100,
-    (data) => (data[0] * data[1]) / 100,
-    (data) => (data[0] * data[2]) / 100,
-    (data) => (data[1] * data[2]) / 100,
+    // (data) => (data[0] * data[1]) / 100,
+    // (data) => (data[0] * data[2]) / 100,
+    // (data) => (data[1] * data[2]) / 100,
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
   fn_judge: function_judge_classification,
@@ -49,6 +49,6 @@ const config = {
     // if (round % 100 < 1) this.learning_rate = 0.001;
     // else this.learning_rate = 0.0000003;
   },
-  lambda: 0.01,
+  lambda: 0.001,
 };
 export default config;

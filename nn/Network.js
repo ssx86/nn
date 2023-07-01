@@ -168,7 +168,7 @@ class Network {
       this.trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
       let batchIndexer = 0;
 
-      let bestLoss;
+      let bestLoss, currentL2;
       for (let j = 0; j < this.trainingData.length; j++) {
         config.updateLearningRate(j);
 
@@ -179,6 +179,7 @@ class Network {
 
         const y = this.getOutputs();
         const { loss, grad, l2 } = this.calcLoss(tValue, y);
+        currentL2 = l2
         this.dJ = grad;
 
         if (batchAcc.hasMoreLossThan(loss)) {
@@ -199,11 +200,11 @@ class Network {
       }
 
 
-      // if (epochAcc.hasMoreLossThan(bestLoss)) {
-      //   this.saveParams(epochAcc, bestLoss);
-      // } else {
-      //   this.loadParams(epochAcc)
-      // }
+      if (epochAcc.hasMoreLossThan(bestLoss)) {
+        this.saveParams(epochAcc, bestLoss);
+      } else {
+        this.loadParams(epochAcc)
+      }
 
       const { accuracy, result } = this.batchTest(
         this.testData.map((x) => config.fn_true_value(x))
@@ -217,6 +218,7 @@ class Network {
       cursor.write("epoch:" + i);
       cursor.reset();
       cursor.write("(loss=" + bestLoss.toFixed(3) + ")")
+      cursor.write("(l2=" + currentL2.toFixed(3) + ")")
       cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
 
     }
