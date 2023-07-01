@@ -1,8 +1,10 @@
 import Activation from "./Activation.js";
 import LossFunction from "./LossFunction.js";
 
+
+const true_column_index = 3
 function function_judge_regression(loss, item, y) {
-  return Math.abs((item[3] - y[0]) / y[0]) < 0.05;
+  return Math.abs((item[true_column_index] - y[0]) / y[0]) < 0.05;
 }
 function function_judge_classification(loss, item, y) {
   let index = 0,
@@ -13,7 +15,7 @@ function function_judge_classification(loss, item, y) {
       max = x;
     }
   });
-  return index + 1 == item[3];
+  return index + 1 == item[true_column_index];
 }
 const config = {
   trainingSize: function (size) {
@@ -27,7 +29,7 @@ const config = {
   data_size: 10000,
   epoch: 50000,
   batch_size: 50,
-  shape: [5, 3, 3],
+  shape: [5, 8, 6, 10],
   features: [
     (data) => data[0],
     (data) => data[1],
@@ -41,8 +43,8 @@ const config = {
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
   fn_judge: function_judge_classification,
-  fn_true_value: (data) => data[3],
-  learning_rate: 0.000003,
+  fn_true_value: (data) => data[true_column_index],
+  learning_rate: 0.00003,
   updateLearningRate: function (round) {
     // if (round % 100 < 1) this.learning_rate = 0.001;
     // else this.learning_rate = 0.0000003;

@@ -198,6 +198,7 @@ class Network {
       cursor.write("epoch:" + i);
       cursor.reset();
       cursor.write(", test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+
     }
   }
 
