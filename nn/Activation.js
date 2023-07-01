@@ -37,16 +37,18 @@ const Activation = {
     },
     der: (x) => {
       const s = Activation.softmax.activate(x); // 计算Softmax激活函数
-      const n = s.length;
-      const jacobian = new Array(n * n).fill(0); // 创建Jacobian矩阵
-      for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
+      // 计算 Jacobian 矩阵
+      var jacobian = [];
+      for (var i = 0; i < s.length; i++) {
+        var row = [];
+        for (var j = 0; j < s.length; j++) {
           if (i === j) {
-            jacobian[i * n + j] = s[i] * (1 - s[i]); // 对角线上的元素
+            row.push(s[i] * (1 - s[i]));
           } else {
-            jacobian[i * n + j] = -s[i] * s[j]; // 非对角线上的元素
+            row.push(-s[i] * s[j]);
           }
         }
+        jacobian.push(row);
       }
       return jacobian; // 返回Jacobian矩阵
     },

@@ -25,9 +25,9 @@ const config = {
   default_activation: Activation.leakyRelu,
   default_output_activation: Activation.softmax,
   data_size: 10000,
-  epoch: 50,
+  epoch: 50000,
   batch_size: 50,
-  shape: [5, 4, 1],
+  shape: [5, 3, 3],
   features: [
     (data) => data[0],
     (data) => data[1],

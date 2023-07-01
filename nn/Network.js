@@ -83,14 +83,11 @@ class Network {
     }
   }
   backward() {
-    // softmax需要在输出层自己用loss计算
-    if (this.getOutputLayer().activation != Activation.softmax) {
-      this.getOutputLayer()
-        .nodes()
-        .forEach((node, index) => {
-          node.dOutput = this.dJ[index];
-        });
-    }
+    this.getOutputLayer()
+      .nodes()
+      .forEach((node, index) => {
+        node.dOutput = this.dJ[index];
+      });
 
     for (let i = this.layers.length - 1; i > 0; i--) {
       const layer = this.layers[i];
@@ -98,14 +95,14 @@ class Network {
     }
   }
 
-  fetchParams(batchAcc) {
+  saveParams(batchAcc) {
     for (let i = this.layers.length - 1; i > 0; i--) {
       const layer = this.layers[i];
       layer.nodes().forEach((n) => n.fetchParam(batchAcc));
     }
   }
 
-  updateParams(batchAcc) {
+  loadParams(batchAcc) {
     for (let i = this.layers.length - 1; i > 0; i--) {
       const layer = this.layers[i];
       layer.nodes().forEach((n) => n.updateParam(batchAcc));
@@ -174,7 +171,7 @@ class Network {
           batchAcc.clear();
           batchAcc.setLoss(loss);
 
-          this.fetchParams(batchAcc);
+          this.saveParams(batchAcc);
         }
         this.backward();
 
@@ -184,7 +181,7 @@ class Network {
         ) {
           batchIndexer++;
 
-          this.updateParams(batchAcc);
+          this.loadParams(batchAcc);
           batchAcc.clear();
         }
       }
@@ -194,7 +191,7 @@ class Network {
       );
       cursor.hide();
       cursor.goto(0, 0);
-      console.table(result.slice(0, 5));
+      console.table(result.slice(0, 10));
 
       cursor.bold();
       cursor.red();

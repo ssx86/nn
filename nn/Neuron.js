@@ -44,7 +44,7 @@ class Neuron extends Node {
     if (!(this.isOutput && this.activation == Activation.softmax)) {
       this.dh = this.activation.der(this.h) * this.dOutput;
     } else {
-      this.dh = this.dOutput;
+      // this.dh会在layer中计算好
     }
 
     const db = -1 * config.learning_rate * this.dh;
