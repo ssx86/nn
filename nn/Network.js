@@ -95,18 +95,27 @@ class Network {
     }
   }
 
-  saveParams(batchAcc) {
-    for (let i = this.layers.length - 1; i > 0; i--) {
-      const layer = this.layers[i];
-      layer.nodes().forEach((n) => n.fetchParam(batchAcc));
-    }
+  saveParams(batchAcc, loss) {
+    batchAcc.setLoss(loss)
+    this.layers.forEach(layer => {
+      layer.nodes().forEach(neuron => {
+        batchAcc.saveBias(neuron);
+      })
+    })
+    this.edges.forEach(edge => {
+      batchAcc.saveWeight(edge)
+    })
   }
 
   loadParams(batchAcc) {
-    for (let i = this.layers.length - 1; i > 0; i--) {
-      const layer = this.layers[i];
-      layer.nodes().forEach((n) => n.updateParam(batchAcc));
-    }
+    this.layers.forEach(layer => {
+      layer.nodes().forEach(neuron => {
+        batchAcc.loadBias(neuron);
+      })
+    })
+    this.edges.forEach(edge => {
+      batchAcc.loadWeight(edge)
+    })
   }
 
   calcLoss(t) {
@@ -150,11 +159,16 @@ class Network {
   }
 
   train() {
-    const batchAcc = new BatchAcc();
 
+
+    const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
+      const batchAcc = new BatchAcc();
+
       this.trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
       let batchIndexer = 0;
+
+      let bestLoss;
       for (let j = 0; j < this.trainingData.length; j++) {
         config.updateLearningRate(j);
 
@@ -167,11 +181,9 @@ class Network {
         const { loss, grad, l2 } = this.calcLoss(tValue, y);
         this.dJ = grad;
 
-        if (batchAcc.better(loss)) {
-          batchAcc.clear();
-          batchAcc.setLoss(loss);
-
-          this.saveParams(batchAcc);
+        if (batchAcc.hasMoreLossThan(loss)) {
+          this.saveParams(batchAcc, loss);
+          bestLoss = loss
         }
         this.backward();
 
@@ -186,6 +198,13 @@ class Network {
         }
       }
 
+
+      // if (epochAcc.hasMoreLossThan(bestLoss)) {
+      //   this.saveParams(epochAcc, bestLoss);
+      // } else {
+      //   this.loadParams(epochAcc)
+      // }
+
       const { accuracy, result } = this.batchTest(
         this.testData.map((x) => config.fn_true_value(x))
       );
@@ -197,7 +216,8 @@ class Network {
       cursor.red();
       cursor.write("epoch:" + i);
       cursor.reset();
-      cursor.write(", test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+      cursor.write("(loss=" + bestLoss.toFixed(3) + ")")
+      cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
 
     }
   }

@@ -29,7 +29,7 @@ const config = {
   data_size: 10000,
   epoch: 50000,
   batch_size: 50,
-  shape: [5, 8, 6, 10],
+  shape: [5, 8, 6, 3],
   features: [
     (data) => data[0],
     (data) => data[1],

@@ -7,7 +7,7 @@ class BatchAcc {
     this.bestLoss = loss;
   }
 
-  better(loss) {
+  hasMoreLossThan(loss) {
     if (this.bestLoss == null) {
       return true;
     } else {
@@ -28,23 +28,23 @@ class BatchAcc {
     return `w_${edge.left.__id}_${edge.right.__id}`;
   }
 
-  setWeight(edge, value) {
+  saveWeight(edge) {
     const key = this.getEdgeKey(edge);
-    this.map.set(key, value);
+    this.map.set(key, edge.w);
   }
-  setBias(neuron, value) {
+  saveBias(neuron) {
     const key = this.getNeuronKey(neuron);
-    this.map.set(key, value);
+    this.map.set(key, neuron.b);
   }
 
-  getWeight(edge) {
+  loadWeight(edge) {
     const key = this.getEdgeKey(edge);
-    return this.map.get(key);
+    edge.b = this.map.get(key);
   }
 
-  getBias(neuron) {
+  loadBias(neuron) {
     const key = this.getNeuronKey(neuron);
-    return this.map.get(key);
+    neuron.b = this.map.get(key);
   }
 }
 

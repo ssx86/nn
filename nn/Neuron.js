@@ -61,19 +61,6 @@ class Neuron extends Node {
     });
   }
 
-  fetchParam(batchAcc) {
-    batchAcc.setBias(this, this.b);
-    this.prevEdges.forEach((edge) => {
-      batchAcc.setWeight(edge, edge.w);
-    });
-  }
-
-  updateParam(batchAcc) {
-    this.b = batchAcc.getBias(this);
-    this.prevEdges.forEach((edge) => {
-      edge.w = batchAcc.getWeight(edge);
-    });
-  }
 }
 
 export default Neuron;

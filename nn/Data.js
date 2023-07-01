@@ -21,11 +21,19 @@ const data = [];
 // }
 
 for (let i = 0; i < dataSize; i++) {
-  const N = 10
+  function category(a, b, c) {
+    if (a * a + b * b < c + c) {
+      return 1
+    } else {
+      return a > b ? 2 : 3
+    }
+  }
+
+  const N = 3
   const a = Math.floor(Math.random() * 100),
     b = Math.floor(Math.random() * 100),
     c = Math.floor(Math.random() * 100);
-  data.push([a, b, c, Math.floor((a * b + c) / (10100 / N)) + 1]);
+  data.push([a, b, c, category(a, b, c)]);
 }
 
 const trainingDataSize = config.trainingSize(config.data_size);
