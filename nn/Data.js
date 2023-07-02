@@ -21,25 +21,27 @@ const data = [];
 // }
 
 for (let i = 0; i < dataSize; i++) {
-  function category(a, b, c) {
-    if (a * b > b * c && a * c > b * c) {
-      return 1
-    } else if (a * b > b * c) {
-      return 2
-    } else {
-      return 3
-    }
+
+  function category(a, b, c, d, e, f) {
+    const s = [a, b, c, d, e, f]
+
+    return Math.findMaxIndex(s)
   }
 
-  const N = 3
-  const a = Math.floor(Math.random() * 100),
-    b = Math.floor(Math.random() * 100),
-    c = Math.floor(Math.random() * 100);
-  data.push([a, b, c, category(a, b, c)]);
+  const N = 6
+  const a = Math.floor(Math.random() * 100);
+  const b = Math.floor(Math.random() * 100);
+  const c = Math.floor(Math.random() * 100);
+  const d = Math.floor(Math.random() * 100);
+  const e = Math.floor(Math.random() * 100);
+  const f = Math.floor(Math.random() * 100);
+  data.push([a, b, c, d, e, f, category(a, b, c, d, e, f)]);
 }
 
 const trainingDataSize = config.trainingSize(config.data_size);
 const trainingData = data.slice(0, trainingDataSize);
 const testData = data.slice(trainingDataSize);
+
+console.log(testData)
 
 export default { trainingData, testData };

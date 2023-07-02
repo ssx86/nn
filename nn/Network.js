@@ -135,13 +135,13 @@ class Network {
     const res = [];
     data.forEach((item, i) => {
       this.propagate(item);
-      const { loss } = this.calcLoss(tData[i]);
+      const { loss, grad } = this.calcLoss(tData[i]);
       const result = config.fn_judge(loss, item, this.getOutputs());
       res.push({
         item,
         result: result,
         expect: tData[i],
-        predict: this.getOutputs(),
+        predict: config.default_output_activation == Activation.softmax ? Math.findMaxIndex(this.getOutputs()) : this.getOutputs()[0],
         loss,
       });
       if (result) tCount++;
@@ -170,7 +170,7 @@ class Network {
 
       let bestLoss, currentL2;
       for (let j = 0; j < this.trainingData.length; j++) {
-        config.updateLearningRate(j);
+        config.updateLearningRate(i, j);
 
         const dataPoint = this.trainingData[j];
         const tValue = config.fn_true_value(dataPoint);
@@ -211,7 +211,7 @@ class Network {
       );
       cursor.hide();
       cursor.goto(0, 0);
-      console.table(result.slice(0, 10));
+      console.table(result.slice(0, 20));
 
       cursor.bold();
       cursor.red();
@@ -219,6 +219,7 @@ class Network {
       cursor.reset();
       cursor.write("(loss=" + bestLoss.toFixed(3) + ")")
       cursor.write("(l2=" + currentL2.toFixed(3) + ")")
+      cursor.write("(lr=" + config.learning_rate.toFixed(3) + ")")
       cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
 
     }
