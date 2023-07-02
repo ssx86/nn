@@ -38,17 +38,15 @@ const Activation = {
     der: (x) => {
       const s = Activation.softmax.activate(x); // 计算Softmax激活函数
       // 计算 Jacobian 矩阵
-      var jacobian = [];
+      var jacobian = new Array(s.length).fill(new Array(s.length).fill(0));
       for (var i = 0; i < s.length; i++) {
-        var row = [];
         for (var j = 0; j < s.length; j++) {
           if (i === j) {
-            row.push(s[i] * (1 - s[i]));
+            jacobian[i][j] = s[i] * (1 - s[i]);
           } else {
-            row.push(-s[i] * s[j]);
+            jacobian[i][j] = -s[i] * s[j];
           }
         }
-        jacobian.push(row);
       }
       return jacobian; // 返回Jacobian矩阵
     },
@@ -63,6 +61,4 @@ const Activation = {
     },
   },
 };
-const res = Activation.softmax.activate([1, 2, 3]);
-console.log(res);
 export default Activation;

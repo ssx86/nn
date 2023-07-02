@@ -141,7 +141,7 @@ class Network {
         item,
         result: result,
         expect: tData[i],
-        predict: config.default_output_activation == Activation.softmax ? Math.findMaxIndex(this.getOutputs()) : this.getOutputs()[0],
+        predict: this.getOutputs(),
         loss,
       });
       if (result) tCount++;
