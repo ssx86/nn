@@ -10,29 +10,29 @@ Math.findMaxIndex = function (arr) {
       max = x;
     }
   });
-  return index
-}
-const true_column_index = 3
+  return index;
+};
+const true_column_index = 3;
 function function_judge_regression(loss, item, y) {
   return Math.abs((item[true_column_index] - y[0]) / y[0]) < 0.08;
 }
 function function_judge_classification(loss, item, y) {
-  const index = Math.findMaxIndex(y)
+  const index = Math.findMaxIndex(y);
   return index == item[true_column_index];
 }
 const config = {
-  trainingSize: function (size) {
+  training_size: function (size) {
     return Math.floor(size * 0.7);
   },
 
-  loss_function: LossFunction.CE,
+  loss_function: LossFunction.MSE,
 
-  default_activation: Activation.sigmoid,
-  default_output_activation: Activation.softmax,
+  default_activation: Activation.leakyRelu,
+  default_output_activation: Activation.leakyRelu,
   data_size: 1000,
   epoch: 50000,
   batch_size: 50,
-  shape: [3],
+  shape: [5, 3, 1],
   features: [
     (data) => data[0],
     (data) => data[1],
@@ -43,17 +43,17 @@ const config = {
     (data) => (data[0] * data[0]) / 100,
     (data) => (data[1] * data[1]) / 100,
     (data) => (data[2] * data[2]) / 100,
-    // (data) => (data[0] * data[1]) / 100,
-    // (data) => (data[0] * data[2]) / 100,
-    // (data) => (data[1] * data[2]) / 100,
+    (data) => (data[0] * data[1]) / 100,
+    (data) => (data[0] * data[2]) / 100,
+    (data) => (data[1] * data[2]) / 100,
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
-  fn_judge: function_judge_classification,
+  fn_judge: function_judge_regression,
   fn_true_value: (data) => data[true_column_index],
-  learning_rate: 0.000003,
+  learning_rate: 0.0000003,
   updateLearningRate: function (epoch, round) {
     // if (epoch % 100 == 0 && round == 0) this.learning_rate *= 0.99999;
   },
-  lambda: 0.01,
+  lambda: 0.1,
 };
 export default config;

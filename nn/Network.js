@@ -96,26 +96,26 @@ class Network {
   }
 
   saveParams(batchAcc, loss) {
-    batchAcc.setLoss(loss)
-    this.layers.forEach(layer => {
-      layer.nodes().forEach(neuron => {
+    batchAcc.setLoss(loss);
+    this.layers.forEach((layer) => {
+      layer.nodes().forEach((neuron) => {
         batchAcc.saveBias(neuron);
-      })
-    })
-    this.edges.forEach(edge => {
-      batchAcc.saveWeight(edge)
-    })
+      });
+    });
+    this.edges.forEach((edge) => {
+      batchAcc.saveWeight(edge);
+    });
   }
 
   loadParams(batchAcc) {
-    this.layers.forEach(layer => {
-      layer.nodes().forEach(neuron => {
+    this.layers.forEach((layer) => {
+      layer.nodes().forEach((neuron) => {
         batchAcc.loadBias(neuron);
-      })
-    })
-    this.edges.forEach(edge => {
-      batchAcc.loadWeight(edge)
-    })
+      });
+    });
+    this.edges.forEach((edge) => {
+      batchAcc.loadWeight(edge);
+    });
   }
 
   calcLoss(t) {
@@ -159,8 +159,6 @@ class Network {
   }
 
   train() {
-
-
     const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
       const batchAcc = new BatchAcc();
@@ -179,12 +177,12 @@ class Network {
 
         const y = this.getOutputs();
         const { loss, grad, l2 } = this.calcLoss(tValue, y);
-        currentL2 = l2
+        currentL2 = l2;
         this.dJ = grad;
 
         if (batchAcc.hasMoreLossThan(loss)) {
           this.saveParams(batchAcc, loss);
-          bestLoss = loss
+          bestLoss = loss;
         }
         this.backward();
 
@@ -199,11 +197,10 @@ class Network {
         }
       }
 
-
       if (epochAcc.hasMoreLossThan(bestLoss)) {
         this.saveParams(epochAcc, bestLoss);
       } else {
-        this.loadParams(epochAcc)
+        this.loadParams(epochAcc);
       }
 
       const { accuracy, result } = this.batchTest(
@@ -211,17 +208,16 @@ class Network {
       );
       cursor.hide();
       cursor.goto(0, 0);
-      console.table(result.slice(0, 20));
+      console.table(result.slice(0, 10));
 
       cursor.bold();
       cursor.red();
       cursor.write("epoch:" + i);
       cursor.reset();
-      cursor.write("(loss=" + bestLoss.toFixed(3) + ")")
-      cursor.write("(l2=" + currentL2.toFixed(3) + ")")
-      cursor.write("(lr=" + config.learning_rate.toFixed(3) + ")")
+      cursor.write("(loss=" + bestLoss.toFixed(3) + ")");
+      cursor.write("(l2=" + currentL2.toFixed(3) + ")");
+      cursor.write("(lr=" + config.learning_rate.toFixed(3) + ")");
       cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
-
     }
   }
 
