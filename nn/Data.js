@@ -14,12 +14,12 @@ function polynomial() {
       b,
       c,
       a +
-        b +
-        3 * c +
-        0.4 * a * b +
-        0.3 * b * c +
-        0.5 * a * c +
-        0.001 * a * b * c,
+      b +
+      3 * c +
+      0.4 * a * b +
+      0.3 * b * c +
+      0.5 * a * c +
+      0.001 * a * b * c,
       // a + b + 3 * c + 0.4,
     ]);
   }
@@ -43,7 +43,7 @@ function classification() {
     const a = Math.floor(Math.random() * 100);
     const b = Math.floor(Math.random() * 100);
     const c = Math.floor(Math.random() * 100);
-    data.push([a, b, c, Math.findMaxIndex([a, b, c])]);
+    data.push([a, b, c, Math.findMaxIndex([a * b, b * c, c * a])]);
   }
   return data;
 }
@@ -60,7 +60,7 @@ function classification2() {
   return data;
 }
 
-const data = classification2();
+const data = classification();
 const trainingDataSize = config.training_size(config.data_size);
 const trainingData = data.slice(0, trainingDataSize);
 const testData = data.slice(trainingDataSize);

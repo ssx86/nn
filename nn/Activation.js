@@ -36,11 +36,13 @@ const Activation = {
       return exps.map((exp) => exp / sumExp); // 返回归一化概率分布向量
     },
     der: (x) => {
-      const s = Activation.softmax.activate(x); // 计算Softmax激活函数
-      // 计算 Jacobian 矩阵
-      var jacobian = new Array(s.length).fill(new Array(s.length).fill(0));
-      for (var i = 0; i < s.length; i++) {
-        for (var j = 0; j < s.length; j++) {
+      const n = x.length;
+      const s = Activation.softmax.activate(x);
+      const jacobian = new Array(n);
+
+      for (let i = 0; i < n; i++) {
+        jacobian[i] = new Array(n);
+        for (let j = 0; j < n; j++) {
           if (i === j) {
             jacobian[i][j] = s[i] * (1 - s[i]);
           } else {
@@ -48,7 +50,8 @@ const Activation = {
           }
         }
       }
-      return jacobian; // 返回Jacobian矩阵
+
+      return jacobian;
     },
   },
 

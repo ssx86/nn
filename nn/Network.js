@@ -197,11 +197,11 @@ class Network {
         }
       }
 
-      // if (epochAcc.hasMoreLossThan(bestLoss)) {
-      //   this.saveParams(epochAcc, bestLoss);
-      // } else {
-      //   this.loadParams(epochAcc);
-      // }
+      if (epochAcc.hasMoreLossThan(bestLoss)) {
+        this.saveParams(epochAcc, bestLoss);
+      } else {
+        this.loadParams(epochAcc);
+      }
 
       const { accuracy, result } = this.batchTest(
         this.testData.map((x) => config.fn_true_value(x))
