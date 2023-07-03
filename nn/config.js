@@ -31,7 +31,7 @@ const config = {
   default_output_activation: Activation.softmax,
 
   data_size: 1000,
-  epoch: 50000,
+  epoch: 80,
   batch_size: 50,
   shape: [5, 3, 3],
 
