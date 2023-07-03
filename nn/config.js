@@ -27,7 +27,7 @@ const config = {
 
   loss_function: LossFunction.CE,
 
-  default_activation: Activation.sigmoid,
+  default_activation: Activation.leakyRelu,
   default_output_activation: Activation.softmax,
 
   data_size: 1000,
@@ -45,9 +45,9 @@ const config = {
     (data) => (data[0] * data[0]) / 100,
     (data) => (data[1] * data[1]) / 100,
     (data) => (data[2] * data[2]) / 100,
-    // (data) => (data[0] * data[1]) / 100,
-    // (data) => (data[0] * data[2]) / 100,
-    // (data) => (data[1] * data[2]) / 100,
+    (data) => (data[0] * data[1]) / 100,
+    (data) => (data[0] * data[2]) / 100,
+    (data) => (data[1] * data[2]) / 100,
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
   fn_judge: function_judge_classification,
