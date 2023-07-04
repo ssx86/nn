@@ -1,3 +1,4 @@
+import NumberRecognizationData from "../helpers/NumberRecognizationData.js";
 import config from "./config.js";
 
 const dataSize = config.data_size;
@@ -58,6 +59,11 @@ function classification2() {
     data.push([a, b, c, Math.floor((a + b + c) / 100)]);
   }
   return data;
+}
+
+// convolutional
+function number_recognization() {
+  // NumberRecognizationData
 }
 
 const data = classification();
