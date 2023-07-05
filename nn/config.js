@@ -57,5 +57,33 @@ const config = {
     // if (epoch % 100 == 0 && round == 0) this.learning_rate *= 0.99999;
   },
   lambda: 0.1,
+
+  kernels: [
+    [
+      [1, -1, 1],
+      [-1, 1, -1],
+      [1, -1, 1],
+    ],
+    [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ],
+    [
+      [0, 0, 1],
+      [0, 1, 0],
+      [1, 0, 0],
+    ],
+  ],
+  convo_shape: [
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "max" },
+  ],
 };
 export default config;
