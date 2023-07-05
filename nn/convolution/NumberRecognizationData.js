@@ -37,7 +37,7 @@ async function prepareData() {
     const tValue = Number.parseInt(number)
     // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue
     if (![0, 1, 2, 3, 4].includes(tValue)) continue
-    for (const filePath of filePaths.slice(0, 80)) {
+    for (const filePath of filePaths) {
       console.log(filePath)
       const image = (await Jimp.read(filePath)).resize(64, 64).grayscale();
 

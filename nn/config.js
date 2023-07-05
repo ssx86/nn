@@ -26,7 +26,7 @@ function function_judge_convolution(loss, item, y) {
 }
 const config = {
   training_size: function (size) {
-    return Math.floor(size * 0.9);
+    return Math.floor(size - 50);
   },
 
   loss_function: LossFunction.CE,
@@ -36,7 +36,7 @@ const config = {
 
   data_size: 1000,
   epoch: 80000,
-  batch_size: 20,
+  batch_size: 10,
   shape: [8, 8, 5],
 
   features: [
