@@ -17,16 +17,28 @@ class Network {
   trainingData = [];
   testData = [];
   dJ;
-  constructor(shape, featureFns, lossFn) {
+  constructor(shape, featureFns, lossFn, isConvolution) {
     this.lossFn = lossFn;
     // Input Layer
-    const inputLayer = new Layer(
-      featureFns.map((fn, index) => {
-        const node = new Feature(fn);
-        node.name = `Feature ${index}`;
-        return node;
-      })
-    );
+    let inputLayer;
+
+    if (isConvolution) {
+      inputLayer = new Layer()
+      for (let i = 0; i < config.convolution_input_size; i++) {
+        const node = new Feature((data) => data.data[i]);
+        node.name = `Feature ${i}`;
+        inputLayer.neurons.push(node);
+      }
+    } else {
+      inputLayer = new Layer(
+        featureFns.map((fn, index) => {
+          const node = new Feature(fn);
+          node.name = `Feature ${index}`;
+          return node;
+        })
+      );
+    }
+
     inputLayer.isFeature = true;
     this.layers.push(inputLayer);
 
@@ -141,7 +153,8 @@ class Network {
         item,
         result: result,
         expect: tData[i],
-        predict: this.getOutputs(),
+        // predict: this.getOutputs(),
+        prob: this.getOutputs().map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]),
         loss,
       });
       if (result) tCount++;
@@ -159,6 +172,7 @@ class Network {
   }
 
   train() {
+    let bestAccuracy = 0
     const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
       const batchAcc = new BatchAcc();
@@ -206,18 +220,18 @@ class Network {
       const { accuracy, result } = this.batchTest(
         this.testData.map((x) => config.fn_true_value(x))
       );
+      bestAccuracy = Math.max(bestAccuracy, accuracy)
       cursor.hide();
       cursor.goto(0, 0);
-      console.table(result.slice(0, 10));
+      console.table(result.slice(0, 15));
 
       cursor.bold();
       cursor.red();
       cursor.write("epoch:" + i);
       cursor.reset();
       cursor.write("(loss=" + bestLoss.toFixed(3) + ")");
-      cursor.write("(l2=" + currentL2.toFixed(3) + ")");
-      cursor.write("(lr=" + config.learning_rate.toFixed(3) + ")");
       cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+      cursor.write("best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");
     }
   }
 

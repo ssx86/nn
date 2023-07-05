@@ -20,9 +20,13 @@ function function_judge_classification(loss, item, y) {
   const index = Math.findMaxIndex(y);
   return index == item[true_column_index];
 }
+function function_judge_convolution(loss, item, y) {
+  const index = Math.findMaxIndex(y);
+  return index == item.tValue
+}
 const config = {
   training_size: function (size) {
-    return Math.floor(size * 0.7);
+    return Math.floor(size * 0.9);
   },
 
   loss_function: LossFunction.CE,
@@ -31,9 +35,9 @@ const config = {
   default_output_activation: Activation.softmax,
 
   data_size: 1000,
-  epoch: 80,
-  batch_size: 50,
-  shape: [5, 3, 3],
+  epoch: 80000,
+  batch_size: 20,
+  shape: [8, 8, 5],
 
   features: [
     (data) => data[0],
@@ -50,9 +54,9 @@ const config = {
     (data) => (data[1] * data[2]) / 100,
     // (data) => (data[0] * data[1] * data[2]) / 10000,
   ],
-  fn_judge: function_judge_classification,
-  fn_true_value: (data) => data[true_column_index],
-  learning_rate: 0.00003,
+  fn_judge: function_judge_convolution,
+  fn_true_value: (data) => data.tValue,
+  learning_rate: 0.00001,
   updateLearningRate: function (epoch, round) {
     // if (epoch % 100 == 0 && round == 0) this.learning_rate *= 0.99999;
   },
@@ -60,19 +64,24 @@ const config = {
 
   kernels: [
     [
-      [1, -1, 1],
+      [1, -1, -1],
       [-1, 1, -1],
-      [1, -1, 1],
+      [-1, -1, 1],
     ],
     [
-      [1, 0, 0],
-      [0, 1, 0],
-      [0, 0, 1],
+      [-1, -1, 1],
+      [-1, 1, -1],
+      [1, -1, -1],
     ],
     [
-      [0, 0, 1],
-      [0, 1, 0],
-      [1, 0, 0],
+      [-1, 1, -1],
+      [-1, 1, -1],
+      [-1, 1, -1],
+    ],
+    [
+      [-1, -1, -1],
+      [1, 1, 1],
+      [-1, -1, -1],
     ],
   ],
   convo_shape: [
@@ -80,10 +89,9 @@ const config = {
     { action: "polling", strategy: "max" },
     { action: "convolution" },
     { action: "polling", strategy: "max" },
-    { action: "convolution" },
-    { action: "polling", strategy: "max" },
-    { action: "polling", strategy: "max" },
     { action: "polling", strategy: "max" },
   ],
+  is_convolution: true,
+  convolution_input_size: 1024,
 };
 export default config;

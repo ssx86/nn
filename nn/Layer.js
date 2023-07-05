@@ -8,7 +8,8 @@ class Layer {
   activation;
 
   constructor(nodes) {
-    this.neurons = nodes;
+    if (nodes)
+      this.neurons = nodes;
   }
 
   nodes() {

@@ -1,4 +1,4 @@
-import NumberRecognizationData from "./convolution/NumberRecognizationData.js";
+import { prepareData } from "./convolution/NumberRecognizationData.js";
 import config from "./config.js";
 
 const dataSize = config.data_size;
@@ -15,12 +15,12 @@ function polynomial() {
       b,
       c,
       a +
-        b +
-        3 * c +
-        0.4 * a * b +
-        0.3 * b * c +
-        0.5 * a * c +
-        0.001 * a * b * c,
+      b +
+      3 * c +
+      0.4 * a * b +
+      0.3 * b * c +
+      0.5 * a * c +
+      0.001 * a * b * c,
       // a + b + 3 * c + 0.4,
     ]);
   }
@@ -62,12 +62,13 @@ function classification2() {
 }
 
 // convolutional
-function number_recognization() {
-  NumberRecognizationData;
+async function number_recognization() {
+  return await prepareData()
 }
 
-const data = classification();
-const trainingDataSize = config.training_size(config.data_size);
+const data = await number_recognization();
+data.sort((a, b) => Math.random() > 0.5 ? 1 : -1)
+const trainingDataSize = config.training_size(config.is_convolution ? data.length : config.data_size);
 const trainingData = data.slice(0, trainingDataSize);
 const testData = data.slice(trainingDataSize);
 

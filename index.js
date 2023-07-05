@@ -7,13 +7,14 @@ function main() {
   const network = new Network(
     config.shape,
     config.features,
-    config.loss_function
+    config.loss_function,
+    config.is_convolution
   );
 
   network.setData(trainingData, testData);
   network.train();
 
-  network.print();
+  // network.print();
 }
 
 main();

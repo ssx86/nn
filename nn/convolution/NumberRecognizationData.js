@@ -14,7 +14,7 @@ async function getFileList(baseDir) {
     const numberDir = path.join(baseDir, name);
     if (!fs.statSync(numberDir).isDirectory()) continue;
 
-    const number = name.split("_")[0];
+    const number = Number.parseInt(name.split("_")[0]);
     fileList[number] = fileList[number] || [];
 
     const files = fs.readdirSync(numberDir);
@@ -34,25 +34,32 @@ async function prepareData() {
 
   const res = [];
   for (const [number, filePaths] of Object.entries(fileList)) {
-    for (const filePath of filePaths) {
-      const image = (await Jimp.read(filePath)).resize(155, 135);
+    const tValue = Number.parseInt(number)
+    // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue
+    if (![0, 1, 2, 3, 4].includes(tValue)) continue
+    for (const filePath of filePaths.slice(0, 80)) {
+      console.log(filePath)
+      const image = (await Jimp.read(filePath)).resize(64, 64).grayscale();
 
-      const bitArray = new Array(image.getHeight()).fill(
-        new Array(image.getWidth()).fill(0)
-      );
-
-      for (let i = 0; i < image.getHeight(); i++) {
-        for (let j = 0; j < image.getWidth(); j++) {
-          bitArray[i][j] = image.getPixelColor(j, i);
-        }
+      const bitArray = new Array(image.getHeight())
+      for (let i = 0; i < bitArray.length; i++) {
+        bitArray[i] = new Array(image.getWidth()).fill(0)
       }
 
-      const output = network.forward(bitArray);
-      res.push(output);
+
+      image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
+        bitArray[y][x] = 256 - this.bitmap.data[idx + 0];
+      });
+
+
+      const data = network.forward(bitArray);
+      if (data.length != 1024) {
+        console.log({ data })
+      }
+      res.push({ data, tValue });
     }
   }
+  return res
 }
 
-const data = await prepareData();
-
-export default data;
+export { prepareData };
