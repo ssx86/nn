@@ -1,9 +1,8 @@
 import Network from "./nn/Network.js";
 import config from "./nn/config.js";
-import Data from "./nn/Data.js";
+import { TraningDataProviderFactory, DataProviderClass } from "./nn/data-provider/TrainingDataProviderFactory.js";
 
-function main() {
-  const { trainingData, testData } = Data;
+async function main() {
   const network = new Network(
     config.shape,
     config.features,
@@ -11,7 +10,11 @@ function main() {
     config.is_convolution
   );
 
-  network.setData(trainingData, testData);
+  const dataProvider = TraningDataProviderFactory.createProvider(DataProviderClass.NumberRecognizationDataProvider)
+
+  dataProvider.prepare()
+  const { trainDataSet, testDataSet } = await dataProvider.getData()
+  network.setData(trainDataSet, testDataSet);
   network.train();
 
   // network.print();
