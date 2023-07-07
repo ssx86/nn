@@ -24,15 +24,15 @@ function getConvolutionalImage(w, h, kernel, image) {
 
   const deltaX = (kernel[0].length - 1) / 2;
   const deltaY = (kernel.length - 1) / 2;
-  for (let i = deltaY; i < h - 1 - deltaY; i++) {
-    for (let j = deltaX; j < w - 1 - deltaX; j++) {
+  for (let i = deltaY; i < h - deltaY; i++) {
+    for (let j = deltaX; j < w - deltaX; j++) {
       newImage[i][j] = convolutional(kernel, image, j, i);
     }
   }
   return newImage;
 }
 
-function polling(size, image, centerX, centerY) {
+function pollingMax(size, image, centerX, centerY) {
   const deltaX = (size - 1) / 2;
   const deltaY = (size - 1) / 2;
   const left = centerX - deltaX;
@@ -46,21 +46,25 @@ function polling(size, image, centerX, centerY) {
   return max;
 }
 
-// function polling(size, image, centerX, centerY) {
-//   const deltaX = (size - 1) / 2;
-//   const deltaY = (size - 1) / 2;
-//   const left = centerX - deltaX;
-//   const top = centerY - deltaY;
-//   let sum = 0;
-//   for (let i = top; i <= centerY + deltaY; i++) {
-//     for (let j = left; j <= centerX + deltaX; j++) {
-//       sum += image?.[j]?.[i] ?? 0;
-//     }
-//   }
-//   return sum / size / size;
-// }
+function pollingAvg(size, image, centerX, centerY) {
+  const deltaX = (size - 1) / 2;
+  const deltaY = (size - 1) / 2;
+  const left = centerX - deltaX;
+  const top = centerY - deltaY;
+  let sum = 0;
+  for (let i = top; i <= centerY + deltaY; i++) {
+    for (let j = left; j <= centerX + deltaX; j++) {
+      sum += image?.[j]?.[i] ?? 0;
+    }
+  }
+  return sum / size / size;
+}
 
-function getPollingImage(w, h, image) {
+function getPollingImage(w, h, image, strategy) {
+  const pollingFns = {
+    avg: pollingAvg,
+    max: pollingMax,
+  }
   const size = 3;
   const newW = Math.ceil(w / 2);
   const newH = Math.ceil(h / 2);
@@ -74,7 +78,7 @@ function getPollingImage(w, h, image) {
   const deltaY = (size - 1) / 2;
   for (let i = deltaY; i < h - 1 - deltaY; i += 2) {
     for (let j = deltaX; j < w - 1 - deltaX; j += 2) {
-      newImage[(i - 1) / 2][(j - 1) / 2] = polling(size, image, j, i);
+      newImage[(i - 1) / 2][(j - 1) / 2] = pollingFns[strategy](size, image, j, i);
     }
   }
   return newImage;
@@ -123,7 +127,7 @@ class ConLayer {
       } else if (this.option.action == "polling") {
         const w = prevNode.data[0].length;
         const h = prevNode.data.length;
-        node.data = getPollingImage(w, h, node.prevNode.data);
+        node.data = getPollingImage(w, h, node.prevNode.data, this.option.strategy);
       } else {
         // input
         node.data = image;

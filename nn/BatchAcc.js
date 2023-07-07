@@ -39,7 +39,7 @@ class BatchAcc {
 
   loadWeight(edge) {
     const key = this.getEdgeKey(edge);
-    edge.b = this.map.get(key);
+    edge.w = this.map.get(key);
   }
 
   loadBias(neuron) {

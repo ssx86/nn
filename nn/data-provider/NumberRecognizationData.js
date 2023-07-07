@@ -3,11 +3,11 @@ import path from "path";
 
 import Jimp from "jimp";
 
-import config from "../config.js";
 import ConNetwork from "../convolution/ConNetwork.js";
 import DataProvider from "./DataProvider.js";
 
 class NumberRecognizationDataProvider extends DataProvider {
+  useCache = true
   judgeFunction = DataProvider.JudgeFunctions.function_judge_convolution;
   isPrepared = false;
 
@@ -35,13 +35,12 @@ class NumberRecognizationDataProvider extends DataProvider {
   ];
   convo_shape = [
     { action: "convolution" },
-    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "avg" },
     { action: "convolution" },
     { action: "polling", strategy: "max" },
-    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "avg" },
   ];
   is_convolution = true;
-  convolution_input_size = 1024;
 
   async getFileList(baseDir) {
     const fileList = {};
@@ -74,13 +73,13 @@ class NumberRecognizationDataProvider extends DataProvider {
     for (const [number, filePaths] of Object.entries(fileList)) {
       const tValue = Number.parseInt(number);
       // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue;
-      if (![0, 1, 2, 3, 4].includes(tValue)) continue;
+      if (![0, 1, 2, 3, 4, 5].includes(tValue)) continue;
       for (const filePath of filePaths) {
         if (filePath.endsWith(".cache.json")) continue;
         const cacheKey = filePath + ".cache.json";
         let data;
 
-        if (fs.existsSync(cacheKey)) {
+        if (this.useCache && fs.existsSync(cacheKey)) {
           const buffer = fs.readFileSync(cacheKey);
           data = JSON.parse(buffer.toString());
           console.log(filePath, "cached");
@@ -117,11 +116,14 @@ class NumberRecognizationDataProvider extends DataProvider {
 
   getFeatureFns() {
     const fns = [];
-    for (let i = 0; i < config.convolution_input_size; i++) {
-      fns.push(new Feature(({ data }) => data.data[i]));
+    for (let i = 0; i < this.convolution_input_size; i++) {
+      fns.push(({ data }) => data[i]);
     }
     return fns;
   }
+
+
+  convolution_input_size = 1024;
 }
 
 export default NumberRecognizationDataProvider;

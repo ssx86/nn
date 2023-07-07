@@ -40,6 +40,8 @@ class DataProvider {
   async getData() {
     await this.prepare();
     this.dataSet.sort(() => Math.random() - 0.5);
+    this.dataSet.sort(() => Math.random() - 0.5);
+    this.dataSet.sort(() => Math.random() - 0.5);
     const [trainDataSet, testDataSet] = await Promise.all([
       this.getTrainDataSet(),
       this.getTestDataSet(),

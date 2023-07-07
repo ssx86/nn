@@ -102,7 +102,8 @@ class Network {
 
   saveParams(batchAcc, loss) {
     batchAcc.setLoss(loss);
-    this.layers.forEach((layer) => {
+    this.layers.forEach((layer, index) => {
+      if (index == 0) return
       layer.nodes().forEach((neuron) => {
         batchAcc.saveBias(neuron);
       });
@@ -113,7 +114,8 @@ class Network {
   }
 
   loadParams(batchAcc) {
-    this.layers.forEach((layer) => {
+    this.layers.forEach((layer, index) => {
+      if (index == 0) return
       layer.nodes().forEach((neuron) => {
         batchAcc.loadBias(neuron);
       });
@@ -152,7 +154,8 @@ class Network {
         prob: this.getOutputs()
           .map((v, i) => [v, i])
           .sort((a, b) => b[0] - a[0])
-          .map((x) => `${x[0]}:${x[1]}`),
+          .map((x) => `${x[1]}(${(100 * x[0]).toFixed(3)}%)`)
+          .toString(),
         loss,
       });
       if (result) tCount++;
@@ -204,14 +207,13 @@ class Network {
           batchIndexer++;
 
           this.loadParams(batchAcc);
-          batchAcc.clear();
         }
       }
 
       if (epochAcc.hasMoreLossThan(bestLoss)) {
         this.saveParams(epochAcc, bestLoss);
       } else {
-        this.loadParams(epochAcc);
+        // this.loadParams(epochAcc);
       }
 
       const { accuracy, result } = this.batchTest(this.testData);
@@ -224,9 +226,9 @@ class Network {
       cursor.red();
       cursor.write("epoch:" + i);
       cursor.reset();
-      cursor.write("(loss=" + bestLoss.toFixed(3) + ")");
-      cursor.write("test accuracy: " + (accuracy * 100).toFixed(2) + "%");
-      cursor.write("best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");
+      cursor.write("   (loss=" + bestLoss.toFixed(3) + ")");
+      cursor.write("   test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+      cursor.write("   best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");
     }
   }
 
