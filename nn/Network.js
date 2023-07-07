@@ -23,7 +23,7 @@ class Network {
     let inputLayer;
 
     if (isConvolution) {
-      inputLayer = new Layer()
+      inputLayer = new Layer();
       for (let i = 0; i < config.convolution_input_size; i++) {
         const node = new Feature((data) => data.data[i]);
         node.name = `Feature ${i}`;
@@ -150,11 +150,14 @@ class Network {
       const { loss, grad } = this.calcLoss(tData[i]);
       const result = config.fn_judge(loss, item, this.getOutputs());
       res.push({
-        item,
+        path: item.filePath,
         result: result,
         expect: tData[i],
         // predict: this.getOutputs(),
-        prob: this.getOutputs().map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]),
+        prob: this.getOutputs()
+          .map((v, i) => [v, i])
+          .sort((a, b) => b[0] - a[0])
+          .map((x) => x[1]),
         loss,
       });
       if (result) tCount++;
@@ -172,7 +175,7 @@ class Network {
   }
 
   train() {
-    let bestAccuracy = 0
+    let bestAccuracy = 0;
     const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
       const batchAcc = new BatchAcc();
@@ -220,10 +223,10 @@ class Network {
       const { accuracy, result } = this.batchTest(
         this.testData.map((x) => config.fn_true_value(x))
       );
-      bestAccuracy = Math.max(bestAccuracy, accuracy)
+      bestAccuracy = Math.max(bestAccuracy, accuracy);
       cursor.hide();
       cursor.goto(0, 0);
-      console.table(result.slice(0, 15));
+      console.table(result.slice(0, 20));
 
       cursor.bold();
       cursor.red();
