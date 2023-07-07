@@ -10,6 +10,7 @@ import Layer from "./Layer.js";
 const cursor = ansi(process.stdout);
 
 class Network {
+  dataProvider;
   lossFn;
   loss;
   layers = [];
@@ -17,35 +18,27 @@ class Network {
   trainingData = [];
   testData = [];
   dJ;
-  constructor(shape, featureFns, lossFn, isConvolution) {
-    this.lossFn = lossFn;
-    // Input Layer
-    let inputLayer;
+  constructor(dataProvider, options) {
+    this.dataProvider = dataProvider;
+    this.lossFn = options.loss_function;
 
-    if (isConvolution) {
-      inputLayer = new Layer();
-      for (let i = 0; i < config.convolution_input_size; i++) {
-        const node = new Feature((data) => data.data[i]);
-        node.name = `Feature ${i}`;
-        inputLayer.neurons.push(node);
-      }
-    } else {
-      inputLayer = new Layer(
-        featureFns.map((fn, index) => {
-          const node = new Feature(fn);
-          node.name = `Feature ${index}`;
-          return node;
-        })
-      );
-    }
+    // Input Layer
+    const featureFns = this.dataProvider.getFeatureFns();
+    const inputLayer = new Layer(
+      featureFns.map((fn, index) => {
+        const node = new Feature(fn);
+        node.name = `Feature ${index}`;
+        return node;
+      })
+    );
 
     inputLayer.isFeature = true;
     this.layers.push(inputLayer);
 
-    const hiddenLayerCount = shape.length;
+    const hiddenLayerCount = options.shape.length;
     for (let i = 0; i < hiddenLayerCount; i++) {
       // install a new layer
-      const nodeCount = shape[i];
+      const nodeCount = options.shape[i];
       const nodes = [];
 
       for (let j = 0; j < nodeCount; j++) {
@@ -140,24 +133,26 @@ class Network {
     return { loss, grad, l2 };
   }
 
-  batchTest(tData) {
-    const data = this.testData;
-    let count = data.length,
-      tCount = 0;
+  batchTest(targets) {
+    let count = targets.length;
+    let tCount = 0;
     const res = [];
-    data.forEach((item, i) => {
+    targets.forEach((item, i) => {
       this.propagate(item);
-      const { loss, grad } = this.calcLoss(tData[i]);
-      const result = config.fn_judge(loss, item, this.getOutputs());
+      const { loss } = this.calcLoss(item.expect);
+      const result = this.dataProvider.judgeFunction(
+        loss,
+        item,
+        this.getOutputs()
+      );
       res.push({
-        path: item.filePath,
-        result: result,
-        expect: tData[i],
-        // predict: this.getOutputs(),
+        // path: item.extra.filePath,
+        result,
+        expect: item.expect,
         prob: this.getOutputs()
           .map((v, i) => [v, i])
           .sort((a, b) => b[0] - a[0])
-          .map((x) => x[1]),
+          .map((x) => `${x[0]}:${x[1]}`),
         loss,
       });
       if (result) tCount++;
@@ -188,12 +183,11 @@ class Network {
         config.updateLearningRate(i, j);
 
         const dataPoint = this.trainingData[j];
-        const tValue = config.fn_true_value(dataPoint);
 
         this.propagate(dataPoint);
 
         const y = this.getOutputs();
-        const { loss, grad, l2 } = this.calcLoss(tValue, y);
+        const { loss, grad, l2 } = this.calcLoss(dataPoint.expect, y);
         currentL2 = l2;
         this.dJ = grad;
 
@@ -220,9 +214,7 @@ class Network {
         this.loadParams(epochAcc);
       }
 
-      const { accuracy, result } = this.batchTest(
-        this.testData.map((x) => config.fn_true_value(x))
-      );
+      const { accuracy, result } = this.batchTest(this.testData);
       bestAccuracy = Math.max(bestAccuracy, accuracy);
       cursor.hide();
       cursor.goto(0, 0);

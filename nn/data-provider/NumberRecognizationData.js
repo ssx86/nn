@@ -8,6 +8,40 @@ import ConNetwork from "../convolution/ConNetwork.js";
 import DataProvider from "./DataProvider.js";
 
 class NumberRecognizationDataProvider extends DataProvider {
+  isPrepared = false;
+
+  kernels = [
+    [
+      [1, -1, -1],
+      [-1, 1, -1],
+      [-1, -1, 1],
+    ],
+    [
+      [-1, -1, 1],
+      [-1, 1, -1],
+      [1, -1, -1],
+    ],
+    [
+      [-1, 1, -1],
+      [-1, 1, -1],
+      [-1, 1, -1],
+    ],
+    [
+      [-1, -1, -1],
+      [1, 1, 1],
+      [-1, -1, -1],
+    ],
+  ];
+  convo_shape = [
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "max" },
+  ];
+  is_convolution = true;
+  convolution_input_size = 1024;
+
   async getFileList(baseDir) {
     const fileList = {};
     const names = fs.readdirSync(baseDir);
@@ -29,8 +63,6 @@ class NumberRecognizationDataProvider extends DataProvider {
     return fileList;
   }
 
-  isPrepared = false;
-  dataSet = [];
   async prepare() {
     if (this.isPrepared) return;
 
@@ -79,18 +111,20 @@ class NumberRecognizationDataProvider extends DataProvider {
           fs.writeFileSync(cacheKey, JSON.stringify(data));
         }
 
-        res.push({ data, tValue, filePath });
+        res.push(
+          DataProvider.createDataItem(data, tValue, { extra: { filePath } })
+        );
       }
     }
-    this.dataSet = res.sort(() => Math.random() - 0.5);
     this.isPrepared = true;
   }
 
-  async getTestDataSet() {
-    return this.dataSet.slice(0, Math.floor(this.dataSet.length * 0.7));
-  }
-  async getTrainDataSet() {
-    return this.dataSet.slice(Math.floor(this.dataSet.length * 0.7));
+  getFeatureFns() {
+    const fns = [];
+    for (let i = 0; i < config.convolution_input_size; i++) {
+      fns.push(new Feature(({ data }) => data.data[i]));
+    }
+    return fns;
   }
 }
 
