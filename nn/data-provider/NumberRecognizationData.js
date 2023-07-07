@@ -8,6 +8,7 @@ import ConNetwork from "../convolution/ConNetwork.js";
 import DataProvider from "./DataProvider.js";
 
 class NumberRecognizationDataProvider extends DataProvider {
+  judgeFunction = DataProvider.JudgeFunctions.function_judge_convolution;
   isPrepared = false;
 
   kernels = [
@@ -66,15 +67,14 @@ class NumberRecognizationDataProvider extends DataProvider {
   async prepare() {
     if (this.isPrepared) return;
 
-    const network = new ConNetwork(config.convo_shape, config.kernels);
+    const network = new ConNetwork(this.convo_shape, this.kernels);
 
     const fileList = await this.getFileList(path.join("data", "train"));
 
-    const res = [];
     for (const [number, filePaths] of Object.entries(fileList)) {
       const tValue = Number.parseInt(number);
-      if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue;
-      // if (![0, 1, 2, 3, 4].includes(tValue)) continue
+      // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue;
+      if (![0, 1, 2, 3, 4].includes(tValue)) continue;
       for (const filePath of filePaths) {
         if (filePath.endsWith(".cache.json")) continue;
         const cacheKey = filePath + ".cache.json";
@@ -104,15 +104,11 @@ class NumberRecognizationDataProvider extends DataProvider {
           );
 
           data = network.forward(bitArray);
-          if (data.length != 1024) {
-            console.log({ data });
-          }
-
           fs.writeFileSync(cacheKey, JSON.stringify(data));
         }
 
-        res.push(
-          DataProvider.createDataItem(data, tValue, { extra: { filePath } })
+        this.dataSet.push(
+          this.createDataItem(data, tValue, { extra: { filePath } })
         );
       }
     }

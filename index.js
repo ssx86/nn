@@ -7,8 +7,8 @@ import {
 
 async function main() {
   const dataProvider = TraningDataProviderFactory.createProvider(
-    DataProviderClass.LinearDataProvider,
-    { size: 10000 }
+    DataProviderClass.NumberRecognizationDataProvider
+    // { size: 10000 }
   );
 
   const network = new Network(dataProvider, config);

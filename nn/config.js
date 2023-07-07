@@ -14,20 +14,13 @@ Math.findMaxIndex = function (arr) {
 };
 
 const config = {
-  training_size: function (size) {
-    return Math.floor(size - 50);
-  },
-
-  loss_function: LossFunction.MSE,
-
-  default_activation: Activation.leakyRelu,
-  default_output_activation: Activation.leakyRelu,
-
+  loss_function: LossFunction.CE,
+  default_activation: Activation.sigmoid,
+  default_output_activation: Activation.softmax,
   epoch: 80000,
   batch_size: 10,
-  shape: [2, 1],
-
-  learning_rate: 0.000001,
+  shape: [30, 30, 5],
+  learning_rate: 0.00001,
   updateLearningRate: function (epoch, round) {
     // if (epoch % 100 == 0 && round == 0) this.learning_rate *= 0.99999;
   },

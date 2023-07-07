@@ -27,10 +27,6 @@ class DataProvider {
     this.options = options;
   }
 
-  judgeFn() {
-    throw Error("did not implement judgeFn.");
-  }
-
   async prepare() {
     return;
   }
