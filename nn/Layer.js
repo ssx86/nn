@@ -2,12 +2,14 @@ import Activation from "./Activation.js";
 import config from "./config.js";
 
 class Layer {
+  network
   isOutput = false;
   isFeature = false;
   neurons = [];
   activation;
 
-  constructor(nodes) {
+  constructor(network, nodes) {
+    this.network = network
     if (nodes)
       this.neurons = nodes;
   }

@@ -37,7 +37,7 @@ class NumberRecognizationDataProvider extends DataProvider {
     { action: "convolution" },
     { action: "polling", strategy: "avg" },
     { action: "convolution" },
-    { action: "polling", strategy: "max" },
+    { action: "polling", strategy: "avg" },
     { action: "polling", strategy: "avg" },
   ];
   is_convolution = true;
@@ -73,7 +73,7 @@ class NumberRecognizationDataProvider extends DataProvider {
     for (const [number, filePaths] of Object.entries(fileList)) {
       const tValue = Number.parseInt(number);
       // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue;
-      if (![0, 1, 2, 3, 4, 5].includes(tValue)) continue;
+      // if (![0, 1, 2, 3, 4, 5].includes(tValue)) continue;
       for (const filePath of filePaths) {
         if (filePath.endsWith(".cache.json")) continue;
         const cacheKey = filePath + ".cache.json";

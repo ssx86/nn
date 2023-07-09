@@ -1,11 +1,12 @@
 import Node from "./Node.js";
 
 class Feature extends Node {
+  network;
   fn;
 
-  constructor(fn) {
+  constructor(network, fn) {
     super();
-
+    this.network = network
     this.fn = fn;
   }
   propagate(val) {

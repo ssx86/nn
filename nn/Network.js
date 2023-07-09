@@ -10,6 +10,7 @@ import Layer from "./Layer.js";
 const cursor = ansi(process.stdout);
 
 class Network {
+  env = {};
   dataProvider;
   lossFn;
   loss;
@@ -25,8 +26,9 @@ class Network {
     // Input Layer
     const featureFns = this.dataProvider.getFeatureFns();
     const inputLayer = new Layer(
+      this,
       featureFns.map((fn, index) => {
-        const node = new Feature(fn);
+        const node = new Feature(this, fn);
         node.name = `Feature ${index}`;
         return node;
       })
@@ -44,6 +46,7 @@ class Network {
       for (let j = 0; j < nodeCount; j++) {
         // Output Layer
         const node = new Neuron(
+          this,
           Math.random() / 10 - 0.05,
           config.default_activation
         );
@@ -54,7 +57,7 @@ class Network {
         }
         nodes.push(node);
       }
-      const layer = new Layer(nodes);
+      const layer = new Layer(this, nodes);
       if (i == hiddenLayerCount - 1) {
         layer.activation = config.default_output_activation;
         layer.isOutput = true;
@@ -69,7 +72,7 @@ class Network {
       const rightLayer = this.layers[i + 1];
       for (const left of leftLayer.nodes()) {
         for (const right of rightLayer.nodes()) {
-          this.edges.push(Edge.connect(left, right, Math.random() / 100));
+          this.edges.push(Edge.connect(this, left, right, Math.random() / 100));
         }
       }
     }
@@ -100,8 +103,9 @@ class Network {
     }
   }
 
-  saveParams(batchAcc, loss) {
+  saveParams(batchAcc, loss, miss) {
     batchAcc.setLoss(loss);
+    batchAcc.setMiss(miss);
     this.layers.forEach((layer, index) => {
       if (index == 0) return
       layer.nodes().forEach((neuron) => {
@@ -172,8 +176,16 @@ class Network {
       .map((x) => x.output);
   }
 
+  setEnv({ epoch, batch, batchIndexer }) {
+    this.env = { epoch, batch, batchIndexer }
+  }
+
+  realtimeLearningRate() {
+    return config.realtimeLearningRate(this.env)
+  }
+
   train() {
-    let bestAccuracy = 0;
+    let bestAccuracy = 0
     const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
       const batchAcc = new BatchAcc();
@@ -181,9 +193,9 @@ class Network {
       this.trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
       let batchIndexer = 0;
 
-      let bestLoss, currentL2;
+      let bestLoss, bestMiss = 0, currentL2;
       for (let j = 0; j < this.trainingData.length; j++) {
-        config.updateLearningRate(i, j);
+        this.setEnv({ epoch: i, batch: Math.floor(j / config.batch_size), batchIndexer })
 
         const dataPoint = this.trainingData[j];
 
@@ -194,10 +206,7 @@ class Network {
         currentL2 = l2;
         this.dJ = grad;
 
-        if (batchAcc.hasMoreLossThan(loss)) {
-          this.saveParams(batchAcc, loss);
-          bestLoss = loss;
-        }
+
         this.backward();
 
         if (
@@ -206,20 +215,30 @@ class Network {
         ) {
           batchIndexer++;
 
-          this.loadParams(batchAcc);
+          const { accuracy, result } = this.batchTest(this.testData);
+          cursor.goto(0, 0);
+          cursor.write("miss:" + (1 - accuracy));
+          if (batchAcc.hasMoreLossThan(loss, 1 - accuracy)) {
+            this.saveParams(batchAcc, loss, 1 - accuracy);
+            bestLoss = loss
+            bestMiss = 1 - accuracy;
+          } else {
+            this.loadParams(batchAcc);
+          }
+
         }
       }
 
-      if (epochAcc.hasMoreLossThan(bestLoss)) {
-        this.saveParams(epochAcc, bestLoss);
-      } else {
-        // this.loadParams(epochAcc);
-      }
+      // if (epochAcc.hasMoreLossThan(bestLoss)) {
+      //   this.saveParams(epochAcc, bestLoss);
+      // } else {
+      //   this.loadParams(epochAcc);
+      // }
 
       const { accuracy, result } = this.batchTest(this.testData);
       bestAccuracy = Math.max(bestAccuracy, accuracy);
-      cursor.hide();
-      cursor.goto(0, 0);
+      cursor.goto(0, 1);
+      cursor.beep();
       console.table(result.slice(0, 20));
 
       cursor.bold();
@@ -228,6 +247,7 @@ class Network {
       cursor.reset();
       cursor.write("   (loss=" + bestLoss.toFixed(3) + ")");
       cursor.write("   test accuracy: " + (accuracy * 100).toFixed(2) + "%");
+      cursor.write("   lr: " + this.realtimeLearningRate(this.env));
       cursor.write("   best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");
     }
   }

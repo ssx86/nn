@@ -1,8 +1,10 @@
 class Edge {
+  network;
   left;
   right;
   w;
-  constructor(left, right, w) {
+  constructor(network, left, right, w) {
+    this.network = network
     this.left = left;
     this.right = right;
     this.w = w;
@@ -10,8 +12,8 @@ class Edge {
     left.postEdges.push(this);
     right.prevEdges.push(this);
   }
-  static connect(left, right, w) {
-    return new Edge(left, right, w);
+  static connect(network, left, right, w) {
+    return new Edge(network, left, right, w);
   }
 }
 

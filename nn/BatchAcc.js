@@ -2,16 +2,20 @@ class BatchAcc {
   map = new Map();
 
   bestLoss = null;
+  bestMiss = null;
 
   setLoss(loss) {
     this.bestLoss = loss;
   }
+  setMiss(miss) {
+    this.bestMiss = miss
+  }
 
-  hasMoreLossThan(loss) {
-    if (this.bestLoss == null) {
+  hasMoreLossThan(loss, miss) {
+    if (this.bestLoss == null || this.bestMiss == null) {
       return true;
     } else {
-      return loss < this.bestLoss;
+      return miss <= this.bestMiss || (miss / this.bestMiss < 1.002 && loss <= this.bestLoss)
     }
   }
 

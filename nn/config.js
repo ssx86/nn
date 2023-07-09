@@ -18,12 +18,15 @@ const config = {
   default_activation: Activation.leakyRelu,
   default_output_activation: Activation.softmax,
   epoch: 80000,
-  batch_size: 20,
-  shape: [8, 8, 6],
-  learning_rate: 0.000001,
-  updateLearningRate: function (epoch, round) {
-    // if (epoch % 100 == 0 && round == 0) this.learning_rate *= 0.99999;
+  batch_size: 30,
+  shape: [5, 5, 10],
+  learning_rate: 0.0003,
+  realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
+    // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
+    const base = this.learning_rate
+    if (batchIndexer == 0) return base * 5 * Math.random();
+    else return base
   },
-  lambda: 0.1,
+  lambda: 0.0000001,
 };
 export default config;
