@@ -15,7 +15,7 @@ class BatchAcc {
     if (this.bestLoss == null || this.bestMiss == null) {
       return true;
     } else {
-      return miss <= this.bestMiss || (miss / this.bestMiss < 1.002 && loss <= this.bestLoss)
+      return miss <= this.bestMiss || (miss / this.bestMiss < 1.02 && loss <= this.bestLoss)
     }
   }
 

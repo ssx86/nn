@@ -245,7 +245,7 @@ class Network {
       cursor.red();
       cursor.write("epoch:" + i);
       cursor.reset();
-      cursor.write("   (loss=" + bestLoss.toFixed(3) + ")");
+      cursor.write("   (loss=" + bestLoss.toFixed(1) + ")");
       cursor.write("   test accuracy: " + (accuracy * 100).toFixed(2) + "%");
       cursor.write("   lr: " + this.realtimeLearningRate(this.env));
       cursor.write("   best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");

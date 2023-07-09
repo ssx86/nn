@@ -65,7 +65,7 @@ function getPollingImage(w, h, image, strategy) {
     avg: pollingAvg,
     max: pollingMax,
   }
-  const size = 3;
+  const size = 5;
   const newW = Math.ceil(w / 2);
   const newH = Math.ceil(h / 2);
 
@@ -78,7 +78,7 @@ function getPollingImage(w, h, image, strategy) {
   const deltaY = (size - 1) / 2;
   for (let i = deltaY; i < h - 1 - deltaY; i += 2) {
     for (let j = deltaX; j < w - 1 - deltaX; j += 2) {
-      newImage[(i - 1) / 2][(j - 1) / 2] = pollingFns[strategy](size, image, j, i);
+      newImage[(i - deltaX) / 2][(j - deltaX) / 2] = pollingFns[strategy](size, image, j, i);
     }
   }
   return newImage;
