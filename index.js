@@ -10,10 +10,11 @@ async function main() {
     DataProviderClass.NumberRecognizationDataProvider
     // { size: 10000 }
   );
+  const { trainDataSet, testDataSet } = await dataProvider.getData();
+
 
   const network = new Network(dataProvider, config);
 
-  const { trainDataSet, testDataSet } = await dataProvider.getData();
   network.setData(trainDataSet, testDataSet);
   network.train();
 

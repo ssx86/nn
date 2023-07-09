@@ -76,9 +76,9 @@ function getPollingImage(w, h, image, strategy) {
 
   const deltaX = (size - 1) / 2;
   const deltaY = (size - 1) / 2;
-  for (let i = deltaY; i < h - 1 - deltaY; i += 2) {
-    for (let j = deltaX; j < w - 1 - deltaX; j += 2) {
-      newImage[(i - deltaX) / 2][(j - deltaX) / 2] = pollingFns[strategy](size, image, j, i);
+  for (let i = deltaY; i < h; i += 2) {
+    for (let j = deltaX; j < w; j += 2) {
+      newImage[(i - deltaY) / 2][(j - deltaX) / 2] = pollingFns[strategy](size, image, j, i);
     }
   }
   return newImage;

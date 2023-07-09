@@ -18,8 +18,8 @@ const config = {
   default_activation: Activation.leakyRelu,
   default_output_activation: Activation.softmax,
   epoch: 80000,
-  batch_size: 50,
-  shape: [8, 8, 4],
+  batch_size: 100,
+  shape: [8, 8, 10],
   learning_rate: 0.0000003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)

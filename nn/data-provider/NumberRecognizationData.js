@@ -13,40 +13,41 @@ class NumberRecognizationDataProvider extends DataProvider {
 
   kernels = [
     [
-      [1, -1, -1, -1, -1],
-      [-1, 1, -1, -1, -1],
-      [-1, -1, 1, -1, -1],
-      [-1, -1, -1, 1, -1],
-      [-1, -1, -1, -1, 1],
+      [1, 0, 0, 0, 0],
+      [0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0],
+      [0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1],
     ],
     [
-      [-1, -1, -1, -1, 1],
-      [-1, -1, -1, 1, -1],
-      [-1, -1, 1, -1, -1],
-      [-1, 1, -1, -1, -1],
-      [1, -1, -1, -1, -1],
+      [0, 0, 0, 0, 1],
+      [0, 0, 0, 1, 0],
+      [0, 0, 1, 0, 0],
+      [0, 1, 0, 0, 0],
+      [1, 0, 0, 0, 0],
     ],
     [
-      [-1, -1, 1, -1, -1],
-      [-1, -1, 1, -1, -1],
-      [-1, -1, 1, -1, -1],
-      [-1, -1, 1, -1, -1],
-      [-1, -1, 1, -1, -1],
+      [0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0],
     ],
     [
-      [-1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
       [1, 1, 1, 1, 1],
-      [-1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
     ],
   ];
   convo_shape = [
     { action: "convolution" },
-    { action: "polling", strategy: "avg" },
+    { action: "polling", strategy: "max" },
     { action: "convolution" },
-    { action: "polling", strategy: "avg" },
-    { action: "polling", strategy: "avg" },
+    { action: "polling", strategy: "max" },
+    { action: "convolution" },
+    { action: "polling", strategy: "max" },
   ];
   is_convolution = true;
 
@@ -74,6 +75,18 @@ class NumberRecognizationDataProvider extends DataProvider {
   async prepare() {
     if (this.isPrepared) return;
 
+    let singleSize = this.initSize[0] * this.initSize[1]
+    let count = 1
+    this.convo_shape.forEach(option => {
+      if (option.action == 'polling') {
+        singleSize = Math.ceil(singleSize / Math.floor(this.kernels[0].length / 2) / Math.floor(this.kernels[0].length / 2))
+      } else if (option.action == 'convolution') {
+        count *= this.kernels.length
+      }
+    })
+    this.convolution_input_size = singleSize * count
+
+
     const network = new ConNetwork(this.convo_shape, this.kernels);
 
     const fileList = await this.getFileList(path.join("data", "train"));
@@ -81,7 +94,7 @@ class NumberRecognizationDataProvider extends DataProvider {
     for (const [number, filePaths] of Object.entries(fileList)) {
       const tValue = Number.parseInt(number);
       // if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(tValue)) continue;
-      if (![0, 1, 2, 3].includes(tValue)) continue;
+      // if (![0, 1, 2, 3].includes(tValue)) continue;
       for (const filePath of filePaths) {
         if (filePath.endsWith(".cache.json")) continue;
         const cacheKey = filePath + ".cache.json";
@@ -130,8 +143,8 @@ class NumberRecognizationDataProvider extends DataProvider {
     return fns;
   }
 
-
-  convolution_input_size = 1024;
+  initSize = [64, 64]
+  convolution_input_size = null
 }
 
 export default NumberRecognizationDataProvider;
