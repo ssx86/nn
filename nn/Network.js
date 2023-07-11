@@ -5,8 +5,12 @@ import config from "./config.js";
 import BatchAcc from "./BatchAcc.js";
 
 import ansi from "ansi";
+import Layer from "./layer/LayerBase.js";
+import InputLayer from "./layer/InputLayer.js";
+import FullConnectLayer from "./layer/FullConnectLayer.js";
 import Activation from "./Activation.js";
-import Layer from "./Layer.js";
+import SoftmaxOutputLayer from "./layer/SoftmaxOutputLayer.js";
+import RegressionOutputLayer from "./layer/RegressionOutputLayer.js";
 const cursor = ansi(process.stdout);
 
 class Network {
@@ -23,59 +27,32 @@ class Network {
     this.dataProvider = dataProvider;
     this.lossFn = options.loss_function;
 
-    // Input Layer
-    const featureFns = this.dataProvider.getFeatureFns();
-    const inputLayer = new Layer(
-      this,
-      featureFns.map((fn, index) => {
-        const node = new Feature(this, fn);
-        node.name = `Feature ${index}`;
-        return node;
-      })
-    );
-
-    inputLayer.isFeature = true;
-    this.layers.push(inputLayer);
-
-    const hiddenLayerCount = options.shape.length;
-    for (let i = 0; i < hiddenLayerCount; i++) {
-      // install a new layer
-      const nodeCount = options.shape[i];
-      const nodes = [];
-
-      for (let j = 0; j < nodeCount; j++) {
-        // Output Layer
-        const node = new Neuron(
-          this,
-          Math.random() / 10 - 0.05,
-          config.default_activation
-        );
-        node.name = `Neuron ${i + 1}-${j + 1}`;
-        if (i == hiddenLayerCount - 1) {
-          node.activation = config.default_output_activation;
-          node.isOutput = true;
-        }
-        nodes.push(node);
-      }
-      const layer = new Layer(this, nodes);
-      if (i == hiddenLayerCount - 1) {
-        layer.activation = config.default_output_activation;
-        layer.isOutput = true;
+    let layer, newLayer
+    options.shape.forEach(option => {
+      switch (option.type) {
+        case "input":
+          newLayer = new InputLayer(this, option)
+          newLayer.buildLayer(this.dataProvider.getFeatureFns());
+          layer = newLayer;
+          break;
+        case "fc":
+          newLayer = new FullConnectLayer(this, option)
+          newLayer.buildLayer(option.size, layer);
+          layer = newLayer;
+          break;
+        case "output":
+          if (option.activation == Activation.softmax) {
+            newLayer = new SoftmaxOutputLayer(this, option)
+            newLayer.buildLayer(option.size, layer);
+          } else {
+            newLayer = new RegressionOutputLayer(this, option)
+            newLayer.buildLayer(layer);
+          }
+          layer = newLayer;
+          break;
       }
       this.layers.push(layer);
-    }
-
-    // full connect
-    const layerCount = hiddenLayerCount + 1;
-    for (let i = 0; i < layerCount - 1; i++) {
-      const leftLayer = this.layers[i];
-      const rightLayer = this.layers[i + 1];
-      for (const left of leftLayer.nodes()) {
-        for (const right of rightLayer.nodes()) {
-          this.edges.push(Edge.connect(this, left, right, Math.random() / 100));
-        }
-      }
-    }
+    })
   }
 
   setData(trainingData, testData) {
@@ -151,17 +128,25 @@ class Network {
         item,
         this.getOutputs()
       );
-      res.push({
+
+      const line = {
         // path: item.extra.filePath,
         result,
         expect: item.expect,
-        prob: this.getOutputs()
+
+        loss,
+      }
+      if (this.getOutputLayer().constructor.name == "SoftmaxOutputLayer") {
+        line.prob = this.getOutputs()
           .map((v, i) => [v, i])
           .sort((a, b) => b[0] - a[0])
           .map((x) => `${x[1]}(${(100 * x[0]).toFixed(3)}%)`)
-          .toString(),
-        loss,
-      });
+          .toString();
+      } else {
+        line.output = this.getOutputs()[0];
+      }
+
+      res.push(line);
       if (result) tCount++;
     });
     return { accuracy: tCount / count, result: res };

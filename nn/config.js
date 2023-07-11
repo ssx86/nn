@@ -19,8 +19,27 @@ const config = {
   default_output_activation: Activation.leakyRelu,
   epoch: 80000,
   batch_size: 100,
-  shape: [8, 8, 1],
-  learning_rate: 0.0000003,
+  shape: [
+    {
+      type: "input",
+      size: 1,
+      // }, {
+      //   type: "fc",
+      //   activation: Activation.leakyRelu,
+      //   size: 3,
+      // },
+      // {
+      //   type: "fc",
+      //   activation: Activation.leakyRelu,
+      //   size: 3,
+    },
+    {
+      type: "output",
+      activation: Activation.leakyRelu,
+      size: 1,
+    }
+  ],
+  learning_rate: 0.00003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
     const base = this.learning_rate;

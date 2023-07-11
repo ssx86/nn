@@ -3,7 +3,7 @@ import Node from "./Node.js";
 import config from "./config.js";
 
 class Neuron extends Node {
-  network
+  layer
   isOutput = false;
 
   b;
@@ -14,9 +14,9 @@ class Neuron extends Node {
   sumW = 0;
   dOutput;
 
-  constructor(network, b, activation = config.default_activation) {
+  constructor(layer, b, activation = config.default_activation) {
     super();
-    this.network = network
+    this.layer = layer
     this.b = b;
     this.activation = activation;
   }
@@ -49,14 +49,14 @@ class Neuron extends Node {
       // this.dh会在layer中计算好
     }
 
-    const db = -1 * this.network.realtimeLearningRate() * this.dh;
+    const db = -1 * this.layer.network.realtimeLearningRate() * this.dh;
     this.b += db;
 
     this.sumW = 0;
     this.prevEdges.forEach((edge) => {
       const dw =
         -1 *
-        this.network.realtimeLearningRate() *
+        this.layer.network.realtimeLearningRate() *
         (this.dh * edge.left.output + edge.w * config.lambda);
       edge.w += dw;
       this.sumW += edge.w;

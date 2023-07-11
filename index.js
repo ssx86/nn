@@ -7,8 +7,7 @@ import {
 
 async function main() {
   const dataProvider = TraningDataProviderFactory.createProvider(
-    DataProviderClass.LinearDataProvider
-    // { size: 10000 }
+    DataProviderClass.LinearDataProvider, { size: 5000 }
   );
   const { trainDataSet, testDataSet } = await dataProvider.getData();
 
