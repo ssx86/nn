@@ -31,10 +31,10 @@ class DataProvider {
     return;
   }
   async getTestDataSet() {
-    return this.dataSet.slice(0, Math.floor(this.dataSet.length * 0.7));
+    return this.dataSet.slice(Math.floor(this.dataSet.length * 0.7));
   }
   async getTrainDataSet() {
-    return this.dataSet.slice(Math.floor(this.dataSet.length * 0.7));
+    return this.dataSet.slice(0, Math.floor(this.dataSet.length * 0.7));
   }
 
   async getData() {

@@ -14,18 +14,18 @@ Math.findMaxIndex = function (arr) {
 };
 
 const config = {
-  loss_function: LossFunction.CE,
+  loss_function: LossFunction.MSE,
   default_activation: Activation.leakyRelu,
-  default_output_activation: Activation.softmax,
+  default_output_activation: Activation.leakyRelu,
   epoch: 80000,
   batch_size: 100,
-  shape: [8, 8, 10],
+  shape: [8, 8, 1],
   learning_rate: 0.0000003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
-    const base = this.learning_rate
+    const base = this.learning_rate;
     if (batchIndexer == 0) return base * 5 * Math.random();
-    else return base
+    else return base;
   },
   lambda: 0.1,
 };

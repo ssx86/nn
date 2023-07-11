@@ -4,7 +4,7 @@ class LinearDataProvider extends DataProvider {
   judgeFunction = DataProvider.JudgeFunctions.function_judge_regression;
 
   prepare() {
-    for (let i = 0; i < this.options.size; i++) {
+    for (let i = 0; i < (this.options?.size || 20000); i++) {
       const a = Math.random() * 100,
         b = Math.random() * 100;
       this.dataSet.push(this.createDataItem([a, b], a + 1));

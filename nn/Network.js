@@ -107,7 +107,7 @@ class Network {
     batchAcc.setLoss(loss);
     batchAcc.setMiss(miss);
     this.layers.forEach((layer, index) => {
-      if (index == 0) return
+      if (index == 0) return;
       layer.nodes().forEach((neuron) => {
         batchAcc.saveBias(neuron);
       });
@@ -119,7 +119,7 @@ class Network {
 
   loadParams(batchAcc) {
     this.layers.forEach((layer, index) => {
-      if (index == 0) return
+      if (index == 0) return;
       layer.nodes().forEach((neuron) => {
         batchAcc.loadBias(neuron);
       });
@@ -177,15 +177,15 @@ class Network {
   }
 
   setEnv({ epoch, batch, batchIndexer }) {
-    this.env = { epoch, batch, batchIndexer }
+    this.env = { epoch, batch, batchIndexer };
   }
 
   realtimeLearningRate() {
-    return config.realtimeLearningRate(this.env)
+    return config.realtimeLearningRate(this.env);
   }
 
   train() {
-    let bestAccuracy = 0
+    let bestAccuracy = 0;
     const epochAcc = new BatchAcc();
     for (let i = 0; i < config.epoch; i++) {
       const batchAcc = new BatchAcc();
@@ -193,9 +193,15 @@ class Network {
       this.trainingData.sort(() => (Math.random() > 0.5 ? 1 : -1));
       let batchIndexer = 0;
 
-      let bestLoss, bestMiss = 0, currentL2;
+      let bestLoss,
+        bestMiss = 0,
+        currentL2;
       for (let j = 0; j < this.trainingData.length; j++) {
-        this.setEnv({ epoch: i, batch: Math.floor(j / config.batch_size), batchIndexer })
+        this.setEnv({
+          epoch: i,
+          batch: Math.floor(j / config.batch_size),
+          batchIndexer,
+        });
 
         const dataPoint = this.trainingData[j];
 
@@ -205,7 +211,6 @@ class Network {
         const { loss, grad, l2 } = this.calcLoss(dataPoint.expect, y);
         currentL2 = l2;
         this.dJ = grad;
-
 
         this.backward();
 
@@ -220,12 +225,11 @@ class Network {
           cursor.write("miss:" + (1 - accuracy));
           if (batchAcc.hasMoreLossThan(loss, 1 - accuracy)) {
             this.saveParams(batchAcc, loss, 1 - accuracy);
-            bestLoss = loss
+            bestLoss = loss;
             bestMiss = 1 - accuracy;
           } else {
             this.loadParams(batchAcc);
           }
-
         }
       }
 
@@ -248,7 +252,9 @@ class Network {
       cursor.write("   (loss=" + bestLoss.toFixed(1) + ")");
       cursor.write("   test accuracy: " + (accuracy * 100).toFixed(2) + "%");
       cursor.write("   lr: " + this.realtimeLearningRate(this.env));
-      cursor.write("   best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%");
+      cursor.write(
+        "   best accuracy: " + (bestAccuracy * 100).toFixed(2) + "%"
+      );
     }
   }
 

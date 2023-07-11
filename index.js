@@ -7,11 +7,10 @@ import {
 
 async function main() {
   const dataProvider = TraningDataProviderFactory.createProvider(
-    DataProviderClass.NumberRecognizationDataProvider
+    DataProviderClass.LinearDataProvider
     // { size: 10000 }
   );
   const { trainDataSet, testDataSet } = await dataProvider.getData();
-
 
   const network = new Network(dataProvider, config);
 

@@ -8,7 +8,8 @@ const LossFunction = {
         }
         return sum / t.length / 2;
       } else {
-        const diff = t - Y;
+        const y = Y[0];
+        const diff = t - y;
         return (diff * diff) / 2;
       }
     },
