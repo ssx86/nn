@@ -39,13 +39,13 @@ const config = {
       size: 3,
     }
   ],
-  learning_rate: 0.000003,
+  learning_rate: 0.0000003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
     const base = this.learning_rate;
     if (batchIndexer == 0) return base * 5 * Math.random();
     else return base;
   },
-  lambda: 0.01,
+  lambda: 0.1,
 };
 export default config;

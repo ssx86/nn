@@ -1,18 +1,19 @@
 import DataProvider from "./DataProvider.js";
 
 class ClassificationDataProvider2 extends DataProvider {
-  get() {
-    const data = [];
+  judgeFunction = DataProvider.JudgeFunctions.function_judge_classification;
 
-    for (let i = 0; i < dataSize; i++) {
+  prepare() {
+    for (let i = 0; i < (this.options?.size || 10000); i++) {
       const a = Math.floor(Math.random() * 100);
       const b = Math.floor(Math.random() * 100);
       const c = Math.floor(Math.random() * 100);
-      data.push([a, b, c, Math.floor((a + b + c) / 100)]);
+      this.dataSet.push(this.createDataItem([a, b, c], Math.floor((a + b + c) / 100)));
     }
-    return data;
   }
-
+  getFeatureFns() {
+    return [({ data }) => data[0], ({ data }) => data[1], ({ data }) => data[2]];
+  }
 }
 
 export default ClassificationDataProvider2;

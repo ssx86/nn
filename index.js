@@ -9,8 +9,8 @@ async function main() {
   const dataProvider = TraningDataProviderFactory.createProvider(
     // DataProviderClass.LinearDataProvider, { size: 5000 }
     // DataProviderClass.PolynomialDataProvider, { size: 5000 },
-    DataProviderClass.ClassificationDataProvider1, { size: 10000 }
-    // DataProviderClass.LinearDataProvider, { size: 5000 }
+    // DataProviderClass.ClassificationDataProvider1, { size: 10000 }
+    DataProviderClass.ClassificationDataProvider2, { size: 5000 }
     // DataProviderClass.LinearDataProvider, { size: 5000 }
   );
   const { trainDataSet, testDataSet } = await dataProvider.getData();
