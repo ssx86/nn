@@ -22,16 +22,16 @@ const config = {
   shape: [
     {
       type: "input",
-      size: 1,
-      // }, {
-      //   type: "fc",
-      //   activation: Activation.leakyRelu,
-      //   size: 3,
-      // },
-      // {
-      //   type: "fc",
-      //   activation: Activation.leakyRelu,
-      //   size: 3,
+    },
+    {
+      type: "fc",
+      activation: Activation.leakyRelu,
+      size: 3,
+    },
+    {
+      type: "fc",
+      activation: Activation.leakyRelu,
+      size: 3,
     },
     {
       type: "output",
@@ -39,13 +39,13 @@ const config = {
       size: 1,
     }
   ],
-  learning_rate: 0.00003,
+  learning_rate: 0.0000003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
     const base = this.learning_rate;
     if (batchIndexer == 0) return base * 5 * Math.random();
     else return base;
   },
-  lambda: 0.1,
+  lambda: 1,
 };
 export default config;

@@ -7,7 +7,11 @@ import {
 
 async function main() {
   const dataProvider = TraningDataProviderFactory.createProvider(
-    DataProviderClass.LinearDataProvider, { size: 5000 }
+    // DataProviderClass.LinearDataProvider, { size: 5000 }
+    DataProviderClass.PolynomialDataProvider, { size: 5000 },
+    // DataProviderClass.LinearDataProvider, { size: 5000 }
+    // DataProviderClass.LinearDataProvider, { size: 5000 }
+    // DataProviderClass.LinearDataProvider, { size: 5000 }
   );
   const { trainDataSet, testDataSet } = await dataProvider.getData();
 

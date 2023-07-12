@@ -133,8 +133,6 @@ class Network {
         // path: item.extra.filePath,
         result,
         expect: item.expect,
-
-        loss,
       }
       if (this.getOutputLayer().constructor.name == "SoftmaxOutputLayer") {
         line.prob = this.getOutputs()
