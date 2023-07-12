@@ -1,5 +1,5 @@
 import Activation from "../Activation.js";
-import config from "../config.js";
+import Neuron from "../Neuron.js";
 import LayerBase from "./LayerBase.js";
 
 class SoftmaxOutputLayer extends LayerBase {

@@ -14,7 +14,7 @@ Math.findMaxIndex = function (arr) {
 };
 
 const config = {
-  loss_function: LossFunction.MSE,
+  loss_function: LossFunction.CE,
   default_activation: Activation.leakyRelu,
   default_output_activation: Activation.leakyRelu,
   epoch: 80000,
@@ -35,17 +35,17 @@ const config = {
     },
     {
       type: "output",
-      activation: Activation.leakyRelu,
-      size: 1,
+      activation: Activation.softmax,
+      size: 3,
     }
   ],
-  learning_rate: 0.0000003,
+  learning_rate: 0.000003,
   realtimeLearningRate: function ({ epoch, batch, batchIndexer }) {
     // const base = this.learning_rate * Math.pow(0.9, Math.max(50, epoch) - 50)
     const base = this.learning_rate;
     if (batchIndexer == 0) return base * 5 * Math.random();
     else return base;
   },
-  lambda: 1,
+  lambda: 0.01,
 };
 export default config;
