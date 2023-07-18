@@ -1,4 +1,4 @@
-import Neuron from "../Neuron.js";
+import Neuron from "../node//Neuron.js";
 import config from "../config.js";
 import LayerBase from "./LayerBase.js";
 

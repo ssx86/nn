@@ -2,16 +2,9 @@ import Activation from "../Activation.js";
 import ConNode from "../node/ConNode.js";
 import LayerBase from "./LayerBase.js";
 
-class ConvolutionLayer extends LayerBase {
+class PollingLayer extends LayerBase {
   nodes = [];
   option;
-  kernels;
-
-  constructor(kernels) {
-    super()
-    this.kernels = kernels
-  }
-
 
   buildLayer(preLayer) {
     for (const left of preLayer.nodes) {
@@ -29,13 +22,7 @@ class ConvolutionLayer extends LayerBase {
       const prevNode = node.prevNode;
       const w = prevNode.data[0].length;
       const h = prevNode.data.length;
-      node.data = getConvolutionalImage(
-        w,
-        h,
-        node.kernel,
-        node.prevNode.data
-      );
-
+      node.data = getPollingImage(w, h, node.prevNode.data, this.option.strategy);
     }
   }
 
@@ -50,4 +37,4 @@ class ConvolutionLayer extends LayerBase {
   }
 }
 
-export default ConvolutionLayer;
+export default PollingLayer;

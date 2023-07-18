@@ -21,8 +21,16 @@ class LayerBase {
     }
   }
 
+  connectNode(left, right) {
+    this.network.edges.push(Edge.connect(this.network, left, right, Math.random() / 10));
+  }
+
   nodes() {
     return this.neurons;
+  }
+
+  addNode(node) {
+    this.nodes.push(node);
   }
 
   propagate() { }

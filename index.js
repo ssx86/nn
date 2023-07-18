@@ -10,8 +10,8 @@ async function main() {
     // DataProviderClass.LinearDataProvider, { size: 5000 }
     // DataProviderClass.PolynomialDataProvider, { size: 5000 },
     // DataProviderClass.ClassificationDataProvider1, { size: 10000 }
-    DataProviderClass.ClassificationDataProvider2, { size: 5000 }
-    // DataProviderClass.LinearDataProvider, { size: 5000 }
+    // DataProviderClass.ClassificationDataProvider2, { size: 5000 }
+    DataProviderClass.NumberRecognizationDataProvider
   );
   const { trainDataSet, testDataSet } = await dataProvider.getData();
 

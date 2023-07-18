@@ -1,6 +1,6 @@
-import Activation from "./Activation.js";
+import Activation from "../Activation.js";
 import Node from "./Node.js";
-import config from "./config.js";
+import config from "../config.js";
 
 class Neuron extends Node {
   layer

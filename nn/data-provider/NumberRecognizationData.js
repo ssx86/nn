@@ -3,7 +3,7 @@ import path from "path";
 
 import Jimp from "jimp";
 
-import ConNetwork from "../convolution/ConNetwork.js";
+import ConNetwork from "../convolution/functions.js";
 import DataProvider from "./DataProvider.js";
 
 class NumberRecognizationDataProvider extends DataProvider {

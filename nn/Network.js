@@ -1,11 +1,9 @@
-import Feature from "./Feature.js";
-import Neuron from "./Neuron.js";
-import Edge from "./Edge.js";
+import Feature from "./node/Feature.js";
+import Neuron from "./node/Neuron.js";
 import config from "./config.js";
 import BatchAcc from "./BatchAcc.js";
 
 import ansi from "ansi";
-import Layer from "./layer/LayerBase.js";
 import InputLayer from "./layer/InputLayer.js";
 import FullConnectLayer from "./layer/FullConnectLayer.js";
 import Activation from "./Activation.js";

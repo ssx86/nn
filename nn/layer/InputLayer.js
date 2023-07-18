@@ -1,4 +1,4 @@
-import Feature from "../Feature.js";
+import Feature from "../node/Feature.js";
 import LayerBase from "./LayerBase.js";
 
 class InputLayer extends LayerBase {
