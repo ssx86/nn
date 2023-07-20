@@ -7,9 +7,7 @@ import ConNetwork from "../convolution/functions.js";
 import DataProvider from "./DataProvider.js";
 
 class NumberRecognizationDataProvider extends DataProvider {
-  useCache = true
   judgeFunction = DataProvider.JudgeFunctions.function_judge_convolution;
-  isPrepared = false;
 
   kernels = [
     [
@@ -73,8 +71,6 @@ class NumberRecognizationDataProvider extends DataProvider {
   }
 
   async prepare() {
-    if (this.isPrepared) return;
-
     let singleSize = this.initSize[0] * this.initSize[1]
     let count = 1
     this.convo_shape.forEach(option => {
@@ -87,8 +83,6 @@ class NumberRecognizationDataProvider extends DataProvider {
     this.convolution_input_size = singleSize * count
 
 
-    const network = new ConNetwork(this.convo_shape, this.kernels);
-
     const fileList = await this.getFileList(path.join("data", "train"));
 
     for (const [number, filePaths] of Object.entries(fileList)) {
@@ -97,42 +91,32 @@ class NumberRecognizationDataProvider extends DataProvider {
       // if (![0, 1, 2, 3].includes(tValue)) continue;
       for (const filePath of filePaths) {
         if (filePath.endsWith(".cache.json")) continue;
-        const cacheKey = filePath + ".cache.json";
-        let data;
 
-        if (this.useCache && fs.existsSync(cacheKey)) {
-          const buffer = fs.readFileSync(cacheKey);
-          data = JSON.parse(buffer.toString());
-          console.log(filePath, "cached");
-        } else {
-          console.log(filePath);
-          const image = (await Jimp.read(filePath)).resize(64, 64).grayscale();
 
-          const bitArray = new Array(image.getHeight());
-          for (let i = 0; i < bitArray.length; i++) {
-            bitArray[i] = new Array(image.getWidth()).fill(0);
-          }
+        console.log(filePath);
+        const image = (await Jimp.read(filePath)).resize(64, 64).grayscale();
 
-          image.scan(
-            0,
-            0,
-            image.bitmap.width,
-            image.bitmap.height,
-            function (x, y, idx) {
-              bitArray[y][x] = 256 - this.bitmap.data[idx + 0];
-            }
-          );
-
-          data = network.forward(bitArray);
-          fs.writeFileSync(cacheKey, JSON.stringify(data));
+        const bitArray = new Array(image.getHeight());
+        for (let i = 0; i < bitArray.length; i++) {
+          bitArray[i] = new Array(image.getWidth()).fill(0);
         }
 
+        image.scan(
+          0,
+          0,
+          image.bitmap.width,
+          image.bitmap.height,
+          function (x, y, idx) {
+            bitArray[y][x] = 256 - this.bitmap.data[idx + 0];
+          }
+        );
+
+
         this.dataSet.push(
-          this.createDataItem(data, tValue, { extra: { filePath } })
+          this.createDataItem(bitArray, tValue, { extra: { filePath } })
         );
       }
     }
-    this.isPrepared = true;
   }
 
   getFeatureFns() {
